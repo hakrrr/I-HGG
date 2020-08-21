@@ -1,0 +1,25 @@
+<mujoco model="ridgeback_ur5_robotiq_two_finger_gripper">
+    <compiler angle="radian" coordinate="local" />
+    <size njmax="500" nconmax="100" />
+    <option timestep="0.002">
+		<flag warmstart="enable"></flag>
+	</option>
+    <asset>
+        <include file="include/table_assets.xml"/>
+        <include file="include/robot_assets.xml"/>
+    </asset>
+
+    <worldbody>
+        <geom name="tableTop" material="MatGnd" type="plane" pos="0. 0. -0.3168" size="3.3 3.3 0.5" rgba="1. 1. 1. 1" contype="1" conaffinity="1"/>
+        <body name="target0" pos="0.6 0.01 0.">
+			<site name="target0" pos="0. 0. 0." size="0.02 0.02 0.02" rgba="1 0 0 1" type="sphere"></site>
+		</body>
+        <include file="include/robot_find.xml"/>
+        <light directional="true" ambient="0.2 0.2 0.2" diffuse="0.8 0.8 0.8" specular="0.3 0.3 0.3" castshadow="false" pos="0 0 4" dir="0 0 -1" name="light0"></light>
+
+    </worldbody>
+    <equality>
+        <weld body1="robot:mocap" body2="robot:left_outer_finger" solimp="0.9 0.95 0.001" solref="0.02 1"/>
+    </equality>
+    <actuator></actuator>
+</mujoco>
