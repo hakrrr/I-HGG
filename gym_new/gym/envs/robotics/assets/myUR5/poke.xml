@@ -1,0 +1,39 @@
+<mujoco model="ridgeback_ur5_robotiq_two_finger_gripper">
+    <compiler angle="radian" coordinate="local" />
+    <size njmax="500" nconmax="100" />
+    <option timestep="0.002">
+		<flag warmstart="enable"></flag>
+	</option>
+    <asset>
+        <include file="include/table_assets.xml"/>
+        <include file="include/robot_assets.xml"/>
+    </asset>
+
+    <worldbody>
+        <geom name="tableTop" material="MatGnd" type="plane" pos="0. 0. -0.3168" size="3.3 3.3 0.5" rgba="1. 1. 1. 1" contype="1" conaffinity="1"/>
+        <body name="target0" pos="0.8 0.01 0.0">
+			<site name="target0" pos="0. 0. 0." size="0.02 0.02 0.02" rgba="1 0 0 1" type="sphere"></site>
+		</body>
+        <include file="include/robot_poke.xml"/>
+        <light directional="true" ambient="0.2 0.2 0.2" diffuse="0.8 0.8 0.8" specular="0.3 0.3 0.3" castshadow="false" pos="0 0 4" dir="0 0 -1" name="light0"></light>
+
+        <body name="table0" pos="1.15 0.0 -0.1584">
+			<geom size="0.625 0.45 0.1584" type="box" condim="3" name="table0" material="table_mat" mass="2000" friction="0.1 0.005 0.0001"></geom>
+		</body>
+
+		<body name="object0" pos="1 0.01 0.02">
+			<joint name="object0:joint" type="free" damping="0.01"></joint>
+			<geom size="0.025 0.02" type="cylinder" condim="3" name="object0" material="puck_mat" friction="0.1 0.005 0.0001" mass="2"></geom>
+			<site name="object0" pos="0 0 0" size="0.02 0.02 0.02" rgba="1 0 0 1" type="sphere"></site>
+		</body>
+
+    </worldbody>
+    <equality>
+        <weld body1="robot:mocap" body2="robot:left_outer_finger" solimp="0.9 0.95 0.001" solref="0.02 1"/>
+    </equality>
+    <actuator></actuator>
+    <asset>
+        <material name="table_mat" specular="0" shininess="0.5" reflectance="0" rgba="0.93 0.93 0.93 1"></material>
+        <material name="puck_mat" specular="0" shininess="0.5" reflectance="0" rgba="0.2 0.2 0.2 1"></material>
+    </asset>
+</mujoco>
