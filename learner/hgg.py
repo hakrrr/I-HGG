@@ -7,6 +7,7 @@ from utils.gcc_utils import gcc_load_lib, c_double, c_int
 from envs.distance_graph import DistanceGraph
 from PIL import Image
 
+
 #TODO: replaced goal_distance with get_graph_goal_distance
 img_size = 84
 train_data = np.empty([1280*15, img_size, img_size, 3])
