@@ -6,6 +6,7 @@ import pickle
 import matplotlib.pyplot as plt
 from utils.os_utils import get_arg_parser
 
+
 def figure_1(figure="a", save_dir="figures"):
     print("Creating figure 1{} ...".format(figure))
     save_path = save_dir + "/Figure_1" + figure
