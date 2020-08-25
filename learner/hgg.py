@@ -62,9 +62,15 @@ class MatchSampler:
 			self.create_graph_distance()
 
 		# estimating diameter
+		# 1.6 Normal Hand Block # ? Image-based Hand Block
 		# 1.843 Normal Hand Egg # 0.405 Image-based Hand Egg
-		# 0.119 Normal Hand Reach # 8.23924 Image-based Hand-Reach
-		# 0.46 Normal Fetch Push # 5.796451 Image-based Push
+		# 0.119 Normal Hand Reach # 8.23924 Image-based Hand Reach
+		# 1.7953 Normal Hand Pen # ? Image-based Hand Pen
+		# 0.46 Normal Fetch Push # 5.796451 Image-based Fetch Push
+		# 0.25 Normal Fetch Reach # ? Image-based Fetch Reach
+		# 0.648 Normal Fetch Slide # ? Image-based Fetch Slide
+		# 0.616 Normal Fetch Pick # ? Image-based Fetch Pick
+
 		self.max_dis = 0
 		for i in range(1000):
 			obs = self.env.reset()
@@ -198,10 +204,23 @@ class HGGLearner:
 		self.stop = False
 		self.learn_calls = 0
 
-
 		self.count = 0
 		img_size = 84
 		self.train_data = np.empty([1280*20, img_size, img_size, 3])
+
+	def generateTrainData(self, timestep, i):
+		if timestep % 5 == 0 and self.count < (1280 * 20):
+			rgb_array = np.array(self.env_List[i].render(mode='rgb_array', width=img_size, height=img_size))
+			# Image.fromarray(rgb_array).show()
+			self.train_data[self.count] = rgb_array
+			self.count += 1
+
+		if self.count % 1000 == 0:
+			print('Count: ', self.count)
+		if self.count == 1280 * 20:
+			np.save('data/FetchPush/vae_train_data_pick', self.train_data)
+			print('fin')
+			self.count += 1
 
 	def learn(self, args, env, env_test, agent, buffer, write_goals=0):
 		# Actual learning cycle takes place here!
@@ -266,22 +285,7 @@ class HGGLearner:
 				if done:
 					break
 
-				'''
-				if timestep % 5 == 0 and self.count < (1280*20):
-					# self.env_List[i].render()
-					rgb_array = np.array(self.env_List[i].render(mode='rgb_array', width=img_size, height=img_size))
-					# Image.fromarray(rgb_array).show()
-					self.train_data[self.count] = rgb_array
-					self.count += 1
-					# np.save('data/HandManipulate/vae_model_egg', train_data)
-
-				if self.count % 1000 == 0:
-					print('Count: ', self.count)
-				if self.count == 1280*20:
-					np.save('data/HandManipulate/vae_train_data_reach', self.train_data)
-					print('fin')
-					self.count += 1
-				'''
+				self.generateTrainData(timestep, i)
 
 
 			achieved_trajectories.append(np.array(trajectory))

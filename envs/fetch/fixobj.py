@@ -2,6 +2,7 @@ import gym
 import numpy as np
 from .vanilla import VanillaGoalEnv
 
+
 class FixedObjectGoalEnv(VanillaGoalEnv):
 	def __init__(self, args):
 		VanillaGoalEnv.__init__(self, args)

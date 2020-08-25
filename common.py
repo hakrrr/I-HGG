@@ -35,21 +35,19 @@ def get_args():
 	parser.add_argument('--n_y', help='number of vertices in y-direction for g-hgg', type=int, default=31)
 	parser.add_argument('--n_z', help='number of vertices in z-direction for g-hgg', type=int, default=11)
 
-
 	parser.add_argument('--gamma', help='discount factor', type=np.float32, default=0.98)
 	parser.add_argument('--clip_return', help='whether to clip return value', type=str2bool, default=True)
 	parser.add_argument('--eps_act', help='percentage of epsilon greedy explorarion', type=np.float32, default=0.3)
 	parser.add_argument('--std_act', help='standard deviation of uncorrelated gaussian explorarion', type=np.float32, default=0.2)
-
 
 	parser.add_argument('--pi_lr', help='learning rate of policy network', type=np.float32, default=1e-3)
 	parser.add_argument('--q_lr', help='learning rate of value network', type=np.float32, default=1e-3)
 	parser.add_argument('--act_l2', help='quadratic penalty on actions', type=np.float32, default=1.0)
 	parser.add_argument('--polyak', help='interpolation factor in polyak averaging for DDPG', type=np.float32, default=0.95)
 
-	parser.add_argument('--epoches', help='number of epoches', type=np.int32, default=30)
+	parser.add_argument('--epoches', help='number of epoches', type=np.int32, default=20)
 	parser.add_argument('--cycles', help='number of cycles per epoch', type=np.int32, default=20)
-	parser.add_argument('--episodes', help='number of episodes per cycle', type=np.int32, default=50)
+	parser.add_argument('--episodes', help='number of episodes per cycle', type=np.int32, default=30)
 	parser.add_argument('--timesteps', help='number of timesteps per episode', type=np.int32, default=(100 if args.env[:5] == 'Fetch' else 100))
 	parser.add_argument('--train_batches', help='number of batches to train per episode', type=np.int32, default=20)
 

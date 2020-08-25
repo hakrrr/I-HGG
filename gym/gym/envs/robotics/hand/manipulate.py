@@ -6,6 +6,8 @@ from gym.envs.robotics import rotations, hand_env
 from gym.envs.robotics.utils import robot_get_obs
 
 from vae.import_vae import goal_set_egg
+from vae.import_vae import goal_set_block
+from vae.import_vae import goal_set_pen
 from torchvision.utils import save_image
 
 
@@ -78,6 +80,7 @@ class ManipulateEnv(hand_env.HandEnv):
         self.ignore_z_target_rotation = ignore_z_target_rotation
         self.img_size = 84
 
+        self.arm_visible = True
         assert self.target_position in ['ignore', 'fixed', 'random']
         assert self.target_rotation in ['ignore', 'fixed', 'xyz', 'z', 'parallel']
         initial_qpos = initial_qpos or {}
@@ -86,9 +89,10 @@ class ManipulateEnv(hand_env.HandEnv):
             self, model_path, n_substeps=n_substeps, initial_qpos=initial_qpos,
             relative_control=relative_control)
 
-        self._set_arm_visible(False)
-
     def _get_achieved_goal(self):
+        if self.arm_visible:
+            self._set_arm_visible(False)
+            self.arm_visible = False
         return self._get_image('ach_hand.png')
         # Object position and rotation (old)
         #object_qpos = self.sim.data.get_joint_qpos('object:joint')
@@ -96,7 +100,11 @@ class ManipulateEnv(hand_env.HandEnv):
         #return object_qpos
 
     def _get_image(self, img_name='default'):
-        local_vae = self.hand_vae
+        if self.arm_visible:
+            self._set_arm_visible(False)
+            self.arm_visible = False
+
+        local_vae = self.hand_vae_egg
         rgb_array = np.array(self.render(mode='rgb_array', width=84, height=84))
         tensor = local_vae.format(rgb_array)
         x, y = local_vae.encode(tensor)
@@ -134,7 +142,6 @@ class ManipulateEnv(hand_env.HandEnv):
             angle_diff = 2 * np.arccos(np.clip(quat_diff[..., 0], -1., 1.))
             d_rot = angle_diff
         assert d_pos.shape == d_rot.shape
-        print(d_pos, d_rot)
         return d_pos, d_rot
 
     def _goal_distance(self, goal_a, goal_b):
@@ -277,17 +284,6 @@ class ManipulateEnv(hand_env.HandEnv):
         goal = np.concatenate([target_pos, target_quat])
         return goal
 
-    def _sample_goal(self):
-        #goal = goal_set[np.random.randint(5)]
-        goal = goal_set_egg[19]
-        goal = self.hand_vae.format(goal)
-        #save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
-        x, y = self.hand_vae.encode(goal)
-        goal = self.hand_vae.reparameterize(x, y)
-        goal = goal.detach().cpu().numpy()
-        goal = np.squeeze(goal)
-        return goal.copy()
-
     def _render_callback(self):
         # Assign current state to target object but offset a bit so that the actual object
         # is not obscured.
@@ -338,6 +334,40 @@ class HandBlockEnv(ManipulateEnv, utils.EzPickle):
             target_position_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]),
             reward_type=reward_type)
 
+    def _sample_goal(self):
+        goal = goal_set_block[3]  # np.random.randint(5)
+        goal = self.hand_vae_block.format(goal)
+        # save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
+        x, y = self.hand_vae_block.encode(goal)
+        goal = self.hand_vae_block.reparameterize(x, y)
+        goal = goal.detach().cpu().numpy()
+        goal = np.squeeze(goal)
+        return goal.copy()
+
+    def _viewer_setup(self):
+        body_id = self.sim.model.body_name2id('object')
+        lookat = self.sim.data.body_xpos[body_id]
+        for idx, value in enumerate(lookat):
+            self.viewer.cam.lookat[idx] = value
+        self.viewer.cam.distance = .25
+        self.viewer.cam.azimuth = 55
+        self.viewer.cam.elevation = -20.
+
+    def _get_image(self, img_name='default'):
+        if self.arm_visible:
+            self._set_arm_visible(False)
+            self.arm_visible = False
+
+        local_vae = self.hand_vae_block
+        rgb_array = np.array(self.render(mode='rgb_array', width=84, height=84))
+        tensor = local_vae.format(rgb_array)
+        x, y = local_vae.encode(tensor)
+        obs = local_vae.reparameterize(x, y)
+        obs = obs.detach().cpu().numpy()
+        obs = np.squeeze(obs)
+        save_image(tensor.cpu().view(-1, 3, 84, 84), img_name)
+        return obs
+
 
 class HandEggEnv(ManipulateEnv, utils.EzPickle):
     def __init__(self, target_position='random', target_rotation='xyz', reward_type='sparse'):
@@ -348,6 +378,17 @@ class HandEggEnv(ManipulateEnv, utils.EzPickle):
             target_position_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]),
             reward_type=reward_type)
 
+    def _sample_goal(self):
+        #goal = goal_set[np.random.randint(5)]
+        goal = goal_set_egg[19]
+        goal = self.hand_vae_egg.format(goal)
+        save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
+        x, y = self.hand_vae_egg.encode(goal)
+        goal = self.hand_vae_egg.reparameterize(x, y)
+        goal = goal.detach().cpu().numpy()
+        goal = np.squeeze(goal)
+        return goal.copy()
+
     def _viewer_setup(self):
         body_id = self.sim.model.body_name2id('object')
         lookat = self.sim.data.body_xpos[body_id]
@@ -356,6 +397,21 @@ class HandEggEnv(ManipulateEnv, utils.EzPickle):
         self.viewer.cam.distance = .23
         self.viewer.cam.azimuth = 180.
         self.viewer.cam.elevation = 90.
+
+    def _get_image(self, img_name='default'):
+        if self.arm_visible:
+            self._set_arm_visible(False)
+            self.arm_visible = False
+
+        local_vae = self.hand_vae_egg
+        rgb_array = np.array(self.render(mode='rgb_array', width=84, height=84))
+        tensor = local_vae.format(rgb_array)
+        x, y = local_vae.encode(tensor)
+        obs = local_vae.reparameterize(x, y)
+        obs = obs.detach().cpu().numpy()
+        obs = np.squeeze(obs)
+        save_image(tensor.cpu().view(-1, 3, 84, 84), img_name)
+        return obs
 
 
 class HandPenEnv(ManipulateEnv, utils.EzPickle):
@@ -367,3 +423,38 @@ class HandPenEnv(ManipulateEnv, utils.EzPickle):
             target_position_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]),
             randomize_initial_rotation=False, reward_type=reward_type,
             ignore_z_target_rotation=True, distance_threshold=0.05)
+
+    def _sample_goal(self):
+        #goal = goal_set[np.random.randint(5)]
+        goal = goal_set_pen[19]
+        goal = self.hand_vae_pen.format(goal)
+        save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
+        x, y = self.hand_vae_pen.encode(goal)
+        goal = self.hand_vae_pen.reparameterize(x, y)
+        goal = goal.detach().cpu().numpy()
+        goal = np.squeeze(goal)
+        return goal.copy()
+
+    def _viewer_setup(self):
+        body_id = self.sim.model.body_name2id('object')
+        lookat = self.sim.data.body_xpos[body_id]
+        for idx, value in enumerate(lookat):
+            self.viewer.cam.lookat[idx] = value
+        self.viewer.cam.distance = .35
+        self.viewer.cam.azimuth = -55
+        self.viewer.cam.elevation = -20.
+
+    def _get_image(self, img_name='default'):
+        if self.arm_visible:
+            self._set_arm_visible(False)
+            self.arm_visible = False
+
+        local_vae = self.hand_vae_pen
+        rgb_array = np.array(self.render(mode='rgb_array', width=84, height=84))
+        tensor = local_vae.format(rgb_array)
+        x, y = local_vae.encode(tensor)
+        obs = local_vae.reparameterize(x, y)
+        obs = obs.detach().cpu().numpy()
+        obs = np.squeeze(obs)
+        save_image(tensor.cpu().view(-1, 3, 84, 84), img_name)
+        return obs

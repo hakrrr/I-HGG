@@ -1,7 +1,7 @@
 import os
 import copy
 import numpy as np
-
+from PIL import Image
 import gym
 import torch
 from gym import error, spaces
@@ -10,8 +10,9 @@ from torchvision.utils import save_image
 
 from vae.import_vae import vae_fetch_push
 from vae.import_vae import vae_egg
+from vae.import_vae import vae_block
+from vae.import_vae import vae_pen
 from vae.import_vae import vae_hand_reach
-
 
 try:
     import mujoco_py
@@ -39,9 +40,10 @@ class RobotEnv(gym.GoalEnv):
             'render.modes': ['human', 'rgb_array'],
             'video.frames_per_second': int(np.round(1.0 / self.dt))
         }
-
         self.fetch_push_vae = vae_fetch_push
-        self.hand_vae = vae_egg
+        self.hand_vae_egg = vae_egg
+        self.hand_vae_block = vae_block
+        self.hand_vae_pen = vae_pen
         self.hand_vae_reach = vae_hand_reach
         self.seed()
         self._env_setup(initial_qpos=initial_qpos)
@@ -81,7 +83,7 @@ class RobotEnv(gym.GoalEnv):
         reward = self.compute_reward(obs['achieved_goal'], self.goal, info)
         # Debug: Check if VAE encodes correctly
         # ach1 = torch.from_numpy(obs['achieved_goal']).float().to('cuda')
-        # save_image(self.hand_vae_reach.decode(ach1).view(-1, 3, 84, 84), 'ach_latent.png')
+        # save_image(self.hand_vae_block.decode(ach1).view(-1, 3, 84, 84), 'ach_latent.png')
         return obs, reward, done, info
 
     def reset(self):

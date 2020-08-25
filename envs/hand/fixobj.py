@@ -4,6 +4,7 @@ from .vanilla import VanillaGoalEnv
 from gym.envs.robotics import rotations
 from envs.utils import quat_from_angle_and_axis
 
+
 class FixedObjectGoalEnv(VanillaGoalEnv):
 	def __init__(self, args):
 		VanillaGoalEnv.__init__(self, args)

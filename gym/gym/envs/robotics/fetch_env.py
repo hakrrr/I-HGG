@@ -48,7 +48,7 @@ class FetchEnv(robot_env.RobotEnv):
 
         self.img_size = 84
         self.robot_arm_ids = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 21]
-
+        self.visible = True
         super(FetchEnv, self).__init__(
             model_path=model_path, n_substeps=n_substeps, n_actions=4,
             initial_qpos=initial_qpos)
@@ -91,6 +91,9 @@ class FetchEnv(robot_env.RobotEnv):
         utils.mocap_set_action(self.sim, action)
 
     def _get_obs(self):
+        if self.visible:
+            self._set_arm_visible(False)
+            self.visible = False
         # positions
         grip_pos = self.sim.data.get_site_xpos('robot0:grip')
         dt = self.sim.nsubsteps * self.sim.model.opt.timestep
@@ -114,17 +117,15 @@ class FetchEnv(robot_env.RobotEnv):
         if not self.has_object:
             achieved_goal = grip_pos.copy()
         else:
-            # achieved_goal = np.squeeze(object_pos.copy())
-            self._set_arm_visible(False)
-            achieved_goal = self._get_image('ach.png')
-            self._set_arm_visible()
+            achieved_goal = np.squeeze(object_pos.copy())
+            # self._set_arm_visible(False)
+            # achieved_goal = self._get_image('ach.png')
+            # self._set_arm_visible()
 
         obs = np.concatenate([
             grip_pos, object_pos.ravel(), object_rel_pos.ravel(), gripper_state, object_rot.ravel(),
             object_velp.ravel(), object_velr.ravel(), grip_velp, gripper_vel,
         ])
-
-        # self._get_image('obs.png')
 
         return {
             'observation': obs.copy(),
@@ -144,20 +145,6 @@ class FetchEnv(robot_env.RobotEnv):
         else:
             for i in self.robot_arm_ids:
                 self.sim.model.geom_rgba[i][3] = 1.0
-
-    def _get_image(self, img_name='default'):
-        local_vae = self.fetch_push_vae
-        np.array(self.render(mode='rgb_array',
-                             width=84, height=84))
-        rgb_array = np.array(self.render(mode='rgb_array',
-                                         width=84, height=84))
-        tensor = local_vae.format(rgb_array)
-        x, y = local_vae.encode(tensor)
-        obs = local_vae.reparameterize(x, y)
-        obs = obs.detach().cpu().numpy()
-        obs = np.squeeze(obs)
-        # save_image(tensor.cpu().view(-1, 3, 84, 84), img_name)
-        return obs
 
     def _viewer_setup(self):
         body_id = self.sim.model.body_name2id('robot0:gripper_link')
@@ -191,7 +178,7 @@ class FetchEnv(robot_env.RobotEnv):
         self.sim.forward()
         return True
 
-    def _sample_goal_old(self):
+    def _sample_goal(self):
         if self.has_object:
             goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
             goal += self.target_offset
@@ -200,16 +187,6 @@ class FetchEnv(robot_env.RobotEnv):
                 goal[2] += self.np_random.uniform(0, 0.45)
         else:
             goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-0.15, 0.15, size=3)
-        return goal.copy()
-
-    def _sample_goal(self):
-        goal = goal_set_fetch_push[np.random.randint(20)]
-        goal = self.fetch_push_vae.format(goal)
-        #save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
-        x, y = self.fetch_push_vae.encode(goal)
-        goal = self.fetch_push_vae.reparameterize(x, y)
-        goal = goal.detach().cpu().numpy()
-        goal = np.squeeze(goal)
         return goal.copy()
 
     def _set_gripper(self, pos):

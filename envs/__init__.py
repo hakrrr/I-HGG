@@ -23,12 +23,14 @@ Robotics_envs_id = [
 	'HandReach-v0'
 ]
 
+
 def make_env(args):
 	assert args.env in Robotics_envs_id
 	if args.env[:5]=='Fetch':
 		return fetch_env.make_env(args)
 	else: # Hand envs
 		return hand_env.make_env(args)
+
 
 def clip_return_range(args):
 	gamma_sum = 1.0/(1.0-args.gamma)
