@@ -1,4 +1,4 @@
-# Exploration via Hindsight Goal Generation
+# Exploration via Image-Based Hindsight Goal Generation
 
 This is the TensorFlow implementation for the Bachelor's thesis "Image-Based Hindsight Goal Generation via VAE for Robotic Object Manipulation with Sparse-Reward Deep Reinforcement Learning" (James Li, 2020). 
 It is based on the implementation of G-HGG (Matthias Brucker, 2020).
