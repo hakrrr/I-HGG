@@ -1,63 +1,44 @@
 # Exploration via Hindsight Goal Generation
 
-This is the TensorFlow implementation for the Bachelor's thesis "Goal-Based Hindsight Goal Generation for Robotic Object Manipulation with Sparse-Reward Deep Reinforcement Learning" (Matthias Brucker, 2020). The PDF of this thesis as well as a video demonstrating our experimental results can be found in this repository.
-It is based on the implementation of the HGG paper [Exploration via Hindsight Goal Generation](http://arxiv.org/abs/1906.04279) accepted by NeurIPS 2019.
+This is the TensorFlow implementation for the Bachelor's thesis "Image-Based Hindsight Goal Generation via VAE for Robotic Object Manipulation with Sparse-Reward Deep Reinforcement Learning" (James Li, 2020). 
+It is based on the implementation of G-HGG (Matthias Brucker, 2020).
 
 
 
 ## Requirements
 1. Ubuntu 16.04 (newer versions such as 18.04 should work as well)
 2. Python 3.5.2 (newer versions such as 3.6.8 should work as well)
-3. MuJoCo == 2.00 (see instructions on https://github.com/openai/mujoco-py)
-4. Install gym from https://github.com/mbrucker07/gym.git. Certain environment specifications and parameters are set there. 
-```bash
-git clone https://github.com/mbrucker07/gym.git
-cd gym
-pip install -e . 
-```
-5. Clone HGG-Extended form https://github.com/mbrucker07/HGG-Extended.git.
-```bash
-git clone https://github.com/mbrucker07/HGG-Extended.git
-cd HGG-Extended
-```
-6. Install requirements with pip install -r requirements.txt
+3. MuJoCo == 1.50 (see instructions on https://github.com/openai/mujoco-py)
+4. Install requirements
+5. Download the directory 'data' from [link] and place it into the root directory
 ```bash
 pip install -r requirements.txt
 ```
 
-## Running commands from G-HGG
+## Running commands from I-HGG
 
-Run the following commands to reproduce results on FetchPushLabyrinth, FetchPickObstacle, FetchPickNoObstacle, and FetchPickAndThrow environments.
+Run the following commands to reproduce results.
 
-Training Results:
-
+## Train VAE
+The directory 'data' includes a set training data and trained VAE model for each task.
+New VAE models can be trained with following command:
 ```bash
-# FetchPushLabyrinth
-# HER (with EBP)
-python train.py --tag 000 --learn normal --env FetchPushLabyrinth-v1 --goal custom 
-# HGG (with HER, EBP and STOP condition)
-python train.py --tag 010 --learn hgg --env FetchPushLabyrinth-v1 --goal custom --stop_hgg_threshold 0.3
-# G-HGG (with HER, EBP and STOP condition)
-python train.py --tag 020 --learn hgg --env FetchPushLabyrinth-v1 --goal custom --graph True --n_x 31 --n_y 31 --n_z 11 --stop_hgg_threshold 0.3 
-
-# FetchPickObstacle
-python train.py --tag 100 --learn normal --env FetchPickObstacle-v1 --goal custom 
-python train.py --tag 110 --learn hgg --env FetchPickObstacle-v1 --goal custom --stop_hgg_threshold 0.3
-python train.py --tag 120 --learn hgg --env FetchPickObstacle-v1 --goal custom --graph True --n_x 31 --n_y 31 --n_z 11 --stop_hgg_threshold 0.3
-
-# FetchPickNoObstacle
-python train.py --tag 200 --learn normal --env FetchPickNoObstacle-v1 --goal custom 
-python train.py --tag 210 --learn hgg --env FetchPickNoObstacle-v1 --goal custom --stop_hgg_threshold 0.3
-python train.py --tag 220 --learn hgg --env FetchPickNoObstacle-v1 --goal custom --graph True --n_x 31 --n_y 31 --n_z 11 --stop_hgg_threshold 0.3
-
-# FetchPickAndThrow
-python train.py --tag 300 --learn normal --env FetchPickAndThrow-v1 --goal custom 
-python train.py --tag 310 --learn hgg --env FetchPickAndThrow-v1 --goal custom --stop_hgg_threshold 0.9
-python train.py --tag 320 --learn hgg --env FetchPickAndThrow-v1 --goal custom --graph True --n_x 51 --n_y 51 --n_z 7 --stop_hgg_threshold 0.9
+# Training a vae model for the environment
+# Note: Training data are loaded in line 72. Edit the path if you wish to train with other training data 
+python vae/train_fetch_pick.py
 ```
 
-## Plotting
+## Agent Training
 
+```bash
+# FetchPush
+# HER (with EBP)
+python train.py --tag 000 --learn normal --env=FetchPush-v1
+# IGG (with EBP)
+python train.py --tag 100 --learn hgg --env=FetchPush-v1
+
+
+## Plotting
 To plot the agent's performance on multiple training runs, copy all training run directories into one directory. For example, we put all FetchPushLabyrinth runs in a directory called BA_Labyrinth, same for FetchPickObstacle (BA_Obstacle), FetchPickNoObstacle (BA_NoObstacle) and FetchPickAndThrow (BA_Throw). naming=0 is recommended as default. For our result plot commands, have a look at create_result_figures.sh. 
 
 ```bash
@@ -85,7 +66,7 @@ To look at the agent solving the respective task according to his learned policy
 # Scheme: python play.py --env env_id --goal custom --play_path log_dir --play_epoch <epoch number, latest or best>
 
 # FetchPushLabyrinth
-# G-HGG
+# I-HGG
 python play.py --env FetchPushLabyrinth-v1 --goal custom --play_path figures/BA_Labyrinth/000-ddpg-FetchPushLabyrinth-v1-hgg-mesh-stop --play_epoch best
 # HGG
 python play.py --env FetchPushLabyrinth-v1 --goal custom --play_path figures/BA_Labyrinth/010-ddpg-FetchPushLabyrinth-v1-hgg-stop --play_epoch best

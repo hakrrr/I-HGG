@@ -41,7 +41,8 @@ class Trajectory:
 			# np.save('data/FetchPush/height.npy', height)
 			# For ep = 100
 			height_load = np.load('data/FetchPush/height.npy')
-			height = height_load[:, : 51]
+			# height = height_load[:, : 51]
+			height = height_load
 			# For ep = 50
 			height_0 = np.repeat(height[:, 0].reshape(-1, 1), height[:, 1::].shape[1], axis=1)
 			height = height[:, 1::] - height_0
