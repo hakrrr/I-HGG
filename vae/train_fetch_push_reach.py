@@ -29,12 +29,12 @@ class VAE(nn.Module):
     def reparameterize(self, mu, logvar):
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
-        return (mu + eps * std) * 0.079
+        return (mu + eps * std) * 0.047
         #return mu
 
     # maybe z * 11
     def decode(self, z):
-        h3 = F.relu(self.fc3(z / 0.079))
+        h3 = F.relu(self.fc3(z) / 0.047)
         return torch.sigmoid(self.fc4(h3))
 
     def forward(self, x):

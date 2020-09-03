@@ -36,10 +36,12 @@ class Tester:
 				actions = agent.step_batch(obs)
 				obs, infos = [], []
 				for i in range(self.test_rollouts):
-					ob, _, _, info = env[i].step(actions[i])
+					ob, reward, _, info = env[i].step(actions[i])
 					obs.append(goal_based_process(ob))
 					infos.append(info)
 			for i in range(self.test_rollouts):
+				# if infos[i]['Rewards'] > -50:
+				#	acc_sum += 1
 				acc_sum += infos[i]['Success']
 
 		steps = self.args.buffer.counter

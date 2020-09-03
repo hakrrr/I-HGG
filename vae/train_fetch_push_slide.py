@@ -17,9 +17,9 @@ class VAE(nn.Module):
         super(VAE, self).__init__()
         self.fc1 = nn.Linear(img_size * img_size * 3, 400)
         # Try to reduce
-        self.fc21 = nn.Linear(400, 2)
-        self.fc22 = nn.Linear(400, 2)
-        self.fc3 = nn.Linear(2, 400)
+        self.fc21 = nn.Linear(400, 4)
+        self.fc22 = nn.Linear(400, 4)
+        self.fc3 = nn.Linear(4, 400)
         self.fc4 = nn.Linear(400, img_size * img_size * 3)
 
     def encode(self, x):
@@ -158,5 +158,5 @@ def load_Vae(path, no_cuda=False, seed=1):
 if __name__ == '__main__':
     # Train VAE
     print('Train VAE...')
-    train_Vae(batch_size=128, epochs=100, load=False)
+    train_Vae(batch_size=128, epochs=100, load=True)
     print('Successfully trained VAE')

@@ -84,8 +84,8 @@ if __name__ == "__main__":
         if args.naming == 0:
             config = clean_path
         elif args.naming == 1:
-            if (("graph" in clean_path) or ("mesh" in clean_path)):
-                config = "G-HGG"
+            if "ihgg" in clean_path:
+                config = "I-HGG"
             elif "hgg" in clean_path:
                 config = "HGG"
             elif "normal" in clean_path:

@@ -9,7 +9,7 @@ from torchvision.utils import save_image
 
 
 img_size = 84
-n_path = '../data/FetchPush/vae_model_goal'
+n_path = '../data/FetchPush/vae_model_push'
 
 
 class VAE(nn.Module):
@@ -29,12 +29,12 @@ class VAE(nn.Module):
     def reparameterize(self, mu, logvar):
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
-        return (mu + eps * std) * 0.079
+        return (mu + eps * std) * 0.15
         #return mu
 
     # maybe z * 11
     def decode(self, z):
-        h3 = F.relu(self.fc3(z / 0.079))
+        h3 = F.relu(self.fc3(z / 0.15))
         return torch.sigmoid(self.fc4(h3))
 
     def forward(self, x):
@@ -69,7 +69,7 @@ def loss_function(recon_x, x, mu, logvar):
 def train(epoch, model, optimizer, device, log_interval, batch_size):
     model.train()
     train_loss = 0
-    data_set = np.load('../data/FetchPush/goal_set.npy')
+    data_set = np.load('../data/FetchPush/push_goal_set.npy')
     data_size = len(data_set)
     data_set = np.split(data_set, data_size / batch_size)
 

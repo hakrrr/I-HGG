@@ -1,8 +1,6 @@
 import numpy as np
 
 from gym.envs.robotics import rotations, robot_env, utils
-from torchvision.utils import save_image
-from vae.import_vae import goal_set_fetch_push
 from numpy import random
 
 
@@ -92,7 +90,7 @@ class FetchEnv(robot_env.RobotEnv):
 
     def _get_obs(self):
         if self.visible:
-            self._set_arm_visible(False)
+            # self._set_arm_visible(False)
             self.visible = False
         # positions
         grip_pos = self.sim.data.get_site_xpos('robot0:grip')
@@ -115,12 +113,13 @@ class FetchEnv(robot_env.RobotEnv):
         gripper_vel = robot_qvel[-2:] * dt  # change to a scalar if the gripper is made symmetric
 
         if not self.has_object:
-            achieved_goal = grip_pos.copy()
+            # achieved_goal = grip_pos.copy()
+            achieved_goal = self._get_image('ach_fetch_reach.png')
         else:
-            achieved_goal = np.squeeze(object_pos.copy())
-            # self._set_arm_visible(False)
-            # achieved_goal = self._get_image('ach.png')
-            # self._set_arm_visible()
+            # achieved_goal = np.squeeze(object_pos.copy())
+            self._set_arm_visible(False)
+            achieved_goal = self._get_image('ach_fetch_pick.png')
+            self._set_arm_visible()
 
         obs = np.concatenate([
             grip_pos, object_pos.ravel(), object_rel_pos.ravel(), gripper_state, object_rot.ravel(),
@@ -178,7 +177,7 @@ class FetchEnv(robot_env.RobotEnv):
         self.sim.forward()
         return True
 
-    def _sample_goal(self):
+    def _sample_goal_old(self):
         if self.has_object:
             goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
             goal += self.target_offset
@@ -192,25 +191,6 @@ class FetchEnv(robot_env.RobotEnv):
     def _set_gripper(self, pos):
         self.sim.data.mocap_pos[:] = pos
         self.sim.data.mocap_quat[:] = [1., 0., 1., 0.]
-
-    def _generate_state(self):
-        threshold = 0.2  # originally 0.2
-        self._set_gripper([random.uniform(1.08 - threshold, 1.52 + threshold),
-                          random.uniform(1.3 - threshold, 1.3 + threshold) - 0.55, 0.43])
-        self.sim.forward()
-        #for _ in range(1):
-        #    self.sim.step()
-
-        offset = 0.03
-        goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-self.target_range-offset, self.target_range+offset, size=3)
-        object_qpos = self.sim.data.get_joint_qpos('object0:joint')
-        object_qpos[:2] = goal[:2]
-        object_qpos[2] = 0.43
-        object_qpos[3:] = [1, 0, 0, 0]
-        self.sim.data.set_joint_qpos('object0:joint', object_qpos)
-        for _ in range(1):
-            self.sim.step()
-        self._step_callback()
 
     def _is_success(self, achieved_goal, desired_goal):
         d = goal_distance(achieved_goal, desired_goal)
@@ -237,3 +217,22 @@ class FetchEnv(robot_env.RobotEnv):
 
     def render(self, mode='human', width=500, height=500):
         return super(FetchEnv, self).render(mode, width, height)
+
+    def _generate_state(self):
+        threshold = 0.2  # originally 0.2
+        self._set_gripper([random.uniform(1.08 - threshold, 1.52 + threshold),
+                          random.uniform(1.3 - threshold, 1.3 + threshold) - 0.55, 0.43])
+        self.sim.forward()
+        #for _ in range(1):
+        #    self.sim.step()
+
+        offset = 0.03
+        goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-self.target_range-offset, self.target_range+offset, size=3)
+        object_qpos = self.sim.data.get_joint_qpos('object0:joint')
+        object_qpos[:2] = goal[:2]
+        object_qpos[2] = 0.43
+        object_qpos[3:] = [1, 0, 0, 0]
+        self.sim.data.set_joint_qpos('object0:joint', object_qpos)
+        for _ in range(1):
+            self.sim.step()
+        self._step_callback()

@@ -9,6 +9,10 @@ from gym.utils import seeding
 from torchvision.utils import save_image
 
 from vae.import_vae import vae_fetch_push
+from vae.import_vae import vae_fetch_pick
+from vae.import_vae import vae_fetch_reach
+from vae.import_vae import vae_fetch_slide
+
 from vae.import_vae import vae_egg
 from vae.import_vae import vae_block
 from vae.import_vae import vae_pen
@@ -40,15 +44,20 @@ class RobotEnv(gym.GoalEnv):
             'render.modes': ['human', 'rgb_array'],
             'video.frames_per_second': int(np.round(1.0 / self.dt))
         }
+        # Vae Model assignment
         self.fetch_push_vae = vae_fetch_push
+        self.fetch_pick_vae = vae_fetch_pick
+        self.fetch_slide_vae = vae_fetch_slide
+        self.fetch_reach = vae_fetch_reach
+
         self.hand_vae_egg = vae_egg
         self.hand_vae_block = vae_block
         self.hand_vae_pen = vae_pen
         self.hand_vae_reach = vae_hand_reach
+
         self.seed()
         self._env_setup(initial_qpos=initial_qpos)
         self.initial_state = copy.deepcopy(self.sim.get_state())
-
         self.goal = self._sample_goal()
         obs = self._get_obs()
         self.action_space = spaces.Box(-1., 1., shape=(n_actions,), dtype='float32')
@@ -83,7 +92,7 @@ class RobotEnv(gym.GoalEnv):
         reward = self.compute_reward(obs['achieved_goal'], self.goal, info)
         # Debug: Check if VAE encodes correctly
         # ach1 = torch.from_numpy(obs['achieved_goal']).float().to('cuda')
-        # save_image(self.hand_vae_block.decode(ach1).view(-1, 3, 84, 84), 'ach_latent.png')
+        # save_image(self.hand_vae_reach.decode(ach1).view(-1, 3, 84, 84), 'ach_latent.png')
         return obs, reward, done, info
 
     def reset(self):

@@ -66,10 +66,10 @@ class MatchSampler:
 		# 1.843 Normal Hand Egg # 0.405 Image-based Hand Egg
 		# 0.119 Normal Hand Reach # 8.23924 Image-based Hand Reach
 		# 1.7953 Normal Hand Pen # ? Image-based Hand Pen
-		# 0.46 Normal Fetch Push # 5.796451 Image-based Fetch Push
-		# 0.25 Normal Fetch Reach # ? Image-based Fetch Reach
+		# 0.46 Normal Fetch Push # 5.796451 / 3.06 Image-based Fetch Push
+		# 0.25 Normal Fetch Reach # 5.263001 Image-based Fetch Reach
 		# 0.648 Normal Fetch Slide # ? Image-based Fetch Slide
-		# 0.616 Normal Fetch Pick # ? Image-based Fetch Pick
+		# 0.616 Normal Fetch Pick # 4.8738904 Image-based Fetch Pick
 
 		self.max_dis = 0
 		for i in range(1000):
@@ -206,10 +206,10 @@ class HGGLearner:
 
 		self.count = 0
 		img_size = 84
-		self.train_data = np.empty([1280*20, img_size, img_size, 3])
+		self.train_data = np.empty([1280*5, img_size, img_size, 3])
 
 	def generateTrainData(self, timestep, i):
-		if timestep % 5 == 0 and self.count < (1280 * 20):
+		if timestep % 5 == 0 and self.count < (1280 * 5):
 			rgb_array = np.array(self.env_List[i].render(mode='rgb_array', width=img_size, height=img_size))
 			# Image.fromarray(rgb_array).show()
 			self.train_data[self.count] = rgb_array
@@ -217,8 +217,8 @@ class HGGLearner:
 
 		if self.count % 1000 == 0:
 			print('Count: ', self.count)
-		if self.count == 1280 * 20:
-			np.save('data/FetchPush/vae_train_data_pick', self.train_data)
+		if self.count == 1280 * 5:
+			np.save('data/FetchPush/vae_train_data_push', self.train_data)
 			print('fin')
 			self.count += 1
 
@@ -285,7 +285,7 @@ class HGGLearner:
 				if done:
 					break
 
-				self.generateTrainData(timestep, i)
+				# self.generateTrainData(timestep, i)
 
 
 			achieved_trajectories.append(np.array(trajectory))

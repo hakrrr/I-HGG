@@ -29,12 +29,12 @@ class VAE(nn.Module):
     def reparameterize(self, mu, logvar):
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
-        return (mu + eps * std) * 0.079
+        return (mu + eps * std) * 0.126
         #return mu
 
     # maybe z * 11
     def decode(self, z):
-        h3 = F.relu(self.fc3(z / 0.079))
+        h3 = F.relu(self.fc3(z / 0.126))
         return torch.sigmoid(self.fc4(h3))
 
     def forward(self, x):
@@ -158,5 +158,5 @@ def load_Vae(path, no_cuda=False, seed=1):
 if __name__ == '__main__':
     # Train VAE
     print('Train VAE...')
-    train_Vae(batch_size=128, epochs=100, load=False)
+    train_Vae(batch_size=128, epochs=50, load=True)
     print('Successfully trained VAE')

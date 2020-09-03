@@ -6,6 +6,7 @@ from gym.envs.robotics import hand_env
 from gym.envs.robotics.utils import robot_get_obs
 from vae.import_vae import goal_set_reach
 from torchvision.utils import save_image
+from PIL import Image
 
 
 FINGERTIP_SITE_NAMES = [
@@ -77,6 +78,9 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
     def _get_image(self, img_name='default'):
         local_vae = self.hand_vae_reach
         rgb_array = np.array(self.render(mode='rgb_array', width=84, height=84))
+        #rgb_array_fig = np.array(self.render(mode='rgb_array', width=256, height=256))
+        #im = Image.fromarray(rgb_array_fig)
+        #im.save('figure_1a.png')
         tensor = local_vae.format(rgb_array)
         x, y = local_vae.encode(tensor)
         obs = local_vae.reparameterize(x, y)
@@ -138,7 +142,7 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
         return goal.flatten()
 
     def _sample_goal(self):
-        goal = goal_set_reach[np.random.randint(3)]
+        goal = goal_set_reach[np.random.randint(2)+3]  # np.random.randint(3)
         goal = self.hand_vae_reach.format(goal)
         # save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
         x, y = self.hand_vae_reach.encode(goal)

@@ -6,7 +6,7 @@ class IntervalGoalEnv(FixedObjectGoalEnv):
 	def __init__(self, args):
 		FixedObjectGoalEnv.__init__(self, args)
 
-	def generate_goal(self):
+	def generate_goal_old(self):
 		if self.has_object:
 			goal = self.initial_gripper_xpos[:3] + self.target_offset
 			if self.args.env=='FetchSlide-v1':

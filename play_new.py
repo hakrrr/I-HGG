@@ -5,7 +5,6 @@ import numpy as np
 from envs import make_env
 from algorithm.replay_buffer import goal_based_process
 from utils.os_utils import make_dir
-import psutil
 from common import get_args
 from PIL import Image
 import time
@@ -52,7 +51,7 @@ class Player:
                 obs.append(goal_based_process(ob))
                 infos.append(info)
                 # if not timestep % 1:
-                rgb_array = np.array(env.render(mode='rgb_array', width=256, height=256))
+                rgb_array = np.array(env.render(mode='rgb_array', width=512, height=512))
                 path = 'videos/frames/frame_' + str(i * 50 + timestep) + '.png'
                 rgb_array = self.get_concat_h(Image.fromarray(rgb_array), goal_img)
                 rgb_array.save(path)
