@@ -9,7 +9,7 @@ from torchvision.utils import save_image
 
 
 img_size = 84
-n_path = '../data/FetchPush/vae_model_slide'
+n_path = '../../data/HandManipulate/vae_model_pen'
 
 
 class VAE(nn.Module):
@@ -17,9 +17,9 @@ class VAE(nn.Module):
         super(VAE, self).__init__()
         self.fc1 = nn.Linear(img_size * img_size * 3, 400)
         # Try to reduce
-        self.fc21 = nn.Linear(400, 4)
-        self.fc22 = nn.Linear(400, 4)
-        self.fc3 = nn.Linear(4, 400)
+        self.fc21 = nn.Linear(400, 8)
+        self.fc22 = nn.Linear(400, 8)
+        self.fc3 = nn.Linear(8, 400)
         self.fc4 = nn.Linear(400, img_size * img_size * 3)
 
     def encode(self, x):
@@ -29,12 +29,12 @@ class VAE(nn.Module):
     def reparameterize(self, mu, logvar):
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
-        return (mu + eps * std) * 0.079
+        return (mu + eps * std) * 0.36
         #return mu
 
     # maybe z * 11
     def decode(self, z):
-        h3 = F.relu(self.fc3(z / 0.079))
+        h3 = F.relu(self.fc3(z / 0.36))
         return torch.sigmoid(self.fc4(h3))
 
     def forward(self, x):
@@ -69,7 +69,7 @@ def loss_function(recon_x, x, mu, logvar):
 def train(epoch, model, optimizer, device, log_interval, batch_size):
     model.train()
     train_loss = 0
-    data_set = np.load('../data/FetchPush/vae_train_data_slide.npy')
+    data_set = np.load('../../data/HandManipulate/vae_train_data_pen.npy')
     data_size = len(data_set)
     data_set = np.split(data_set, data_size / batch_size)
 
@@ -119,12 +119,6 @@ def train_Vae(batch_size=128, epochs=100, no_cuda=False, seed=1, log_interval=9,
 
     for epoch in range(1, epochs + 1):
         train(epoch, model, optimizer, device, log_interval, batch_size)
-        # test(epoch, model, test_loader, batch_size, device)
-        # with torch.no_grad():
-        #    sample = torch.randn(64, 5).to(device)
-        #    sample = model.decode(sample).cpu()
-        #    save_image(sample.view(64, 3, img_size, img_size),
-        #               'results/sample.png')
         if not (epoch % 100):
             print('Saving Progress!')
             torch.save({
@@ -158,5 +152,5 @@ def load_Vae(path, no_cuda=False, seed=1):
 if __name__ == '__main__':
     # Train VAE
     print('Train VAE...')
-    train_Vae(batch_size=128, epochs=100, load=True)
+    train_Vae(batch_size=128, epochs=100, load=False)
     print('Successfully trained VAE')

@@ -3,13 +3,15 @@ import copy
 import numpy as np
 from PIL import Image
 import gym
+import sys
 import torch
 from gym import error, spaces
 from gym.utils import seeding
 from torchvision.utils import save_image
 
 from vae.import_vae import vae_fetch_push
-from vae.import_vae import vae_fetch_pick
+from vae.import_vae import vae_fetch_pick_0
+from vae.import_vae import vae_fetch_pick_1
 from vae.import_vae import vae_fetch_reach
 from vae.import_vae import vae_fetch_slide
 
@@ -46,7 +48,8 @@ class RobotEnv(gym.GoalEnv):
         }
         # Vae Model assignment
         self.fetch_push_vae = vae_fetch_push
-        self.fetch_pick_vae = vae_fetch_pick
+        self.fetch_pick_vae_0 = vae_fetch_pick_0
+        self.fetch_pick_vae_1 = vae_fetch_pick_1
         self.fetch_slide_vae = vae_fetch_slide
         self.fetch_reach = vae_fetch_reach
 
@@ -107,6 +110,28 @@ class RobotEnv(gym.GoalEnv):
             did_reset_sim = self._reset_sim()
         self.goal = self._sample_goal().copy()
         obs = self._get_obs()
+
+        # Generate state
+        '''
+        train_data_0 = np.empty([1280*9, 84, 84, 3])
+        train_data_1 = np.empty([1280*9, 84, 84, 3])
+        for i in range(1280*9):
+            self._generate_state()
+            img_0 = self.render(width=84, height=84, cam_name='cam_0')
+            img_1 = self.render(width=84, height=84, cam_name='cam_1')
+            # img_one = Image.fromarray(img_0, 'RGB')
+            # img_two = Image.fromarray(img_1, 'RGB')
+            # img_one.show()
+            # img_two.show()
+            train_data_0[i] = img_0
+            train_data_1[i] = img_1
+            if i % 1000 == 0:
+                print(i)
+        np.save('data/Fetch_Env/vae_train_data_pick_0', train_data_0)
+        np.save('data/Fetch_Env/vae_train_data_pick_1', train_data_1)
+        print('Finished')
+        sys.exit()
+        '''
         return obs
 
     def close(self):
@@ -119,8 +144,8 @@ class RobotEnv(gym.GoalEnv):
         # self._render_callback()
         rgb_array = self.sim.render(width=width, height=height, camera_name=cam_name)
         rgb_array = np.rot90(rgb_array)
-        img = Image.fromarray(rgb_array, 'RGB')
-        img.show()
+        # img = Image.fromarray(rgb_array, 'RGB')
+        # img.show()
         return rgb_array
 
     '''
@@ -210,4 +235,7 @@ class RobotEnv(gym.GoalEnv):
         """A custom callback that is called after stepping the simulation. Can be used
         to enforce additional constraints on the simulation state.
         """
+        pass
+
+    def _generate_state(self):
         pass

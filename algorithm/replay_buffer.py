@@ -37,15 +37,18 @@ class Trajectory:
 			obj = np.array([obj])
 
 			clip_energy = 0.5
+
 			# height = obj[:, :, 2]
 			# np.save('data/FetchPush/height.npy', height)
 			# For ep = 100
-			height_load = np.load('data/FetchPush/height.npy')
-			# height = height_load[:, : 51]
-			height = height_load
+			height_load = np.load('data/Fetch_Env/height.npy')
 			# For ep = 50
+			height = height_load[:, : 51]
+			# height = height_load
+
 			height_0 = np.repeat(height[:, 0].reshape(-1, 1), height[:, 1::].shape[1], axis=1)
 			height = height[:, 1::] - height_0
+
 			g, m, delta_t = 9.81, 1, 0.04
 			potential_energy = g*m*height
 			diff = np.diff(obj, axis=1)

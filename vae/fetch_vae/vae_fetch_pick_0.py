@@ -9,7 +9,7 @@ from torchvision.utils import save_image
 
 
 img_size = 84
-n_path = '../data/FetchPush/vae_model_pick'
+n_path = '../../data/Fetch_Env/vae_model_pick_0'
 
 
 class VAE(nn.Module):
@@ -29,12 +29,12 @@ class VAE(nn.Module):
     def reparameterize(self, mu, logvar):
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
-        return (mu + eps * std) * 0.126
+        return (mu + eps * std)
         #return mu
 
     # maybe z * 11
     def decode(self, z):
-        h3 = F.relu(self.fc3(z / 0.126))
+        h3 = F.relu(self.fc3(z))
         return torch.sigmoid(self.fc4(h3))
 
     def forward(self, x):
@@ -60,7 +60,7 @@ def loss_function(recon_x, x, mu, logvar):
     # 0.5 * sum(1 + log(sigma^2) - mu^2 - sigma^2)
 
     # Try to adjust
-    KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+    KLD = -3 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
 
     return BCE + KLD
 
@@ -69,7 +69,7 @@ def loss_function(recon_x, x, mu, logvar):
 def train(epoch, model, optimizer, device, log_interval, batch_size):
     model.train()
     train_loss = 0
-    data_set = np.load('../data/FetchPush/vae_train_data_pick.npy')
+    data_set = np.load('../../data/Fetch_Env/vae_train_data_pick_0.npy')
     data_size = len(data_set)
     data_set = np.split(data_set, data_size / batch_size)
 
@@ -86,9 +86,9 @@ def train(epoch, model, optimizer, device, log_interval, batch_size):
         optimizer.step()
         if batch_idx % log_interval == 0:
             save_image(data.cpu().view(-1, 3, img_size, img_size),
-                       'results/original.png')
+                       '../results/original.png')
             save_image(recon_batch.cpu().view(-1, 3, img_size, img_size),
-                       'results/recon.png')
+                       '../results/recon.png')
             #           'results/recon_' + str(epoch) + '.png')
 
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
@@ -158,5 +158,5 @@ def load_Vae(path, no_cuda=False, seed=1):
 if __name__ == '__main__':
     # Train VAE
     print('Train VAE...')
-    train_Vae(batch_size=128, epochs=50, load=True)
+    train_Vae(batch_size=128, epochs=100, load=True)
     print('Successfully trained VAE')

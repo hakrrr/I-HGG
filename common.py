@@ -47,8 +47,8 @@ def get_args():
 
 	parser.add_argument('--epoches', help='number of epoches', type=np.int32, default=20)
 	parser.add_argument('--cycles', help='number of cycles per epoch', type=np.int32, default=20)
-	parser.add_argument('--episodes', help='number of episodes per cycle', type=np.int32, default=30)
-	parser.add_argument('--timesteps', help='number of timesteps per episode', type=np.int32, default=(100 if args.env[:5] == 'Fetch' else 100))
+	parser.add_argument('--episodes', help='number of episodes per cycle', type=np.int32, default=50)
+	parser.add_argument('--timesteps', help='number of timesteps per episode', type=np.int32, default=(50 if args.env[:5] == 'Fetch' else 100))
 	parser.add_argument('--train_batches', help='number of batches to train per episode', type=np.int32, default=20)
 
 	parser.add_argument('--buffer_size', help='number of episodes in replay buffer', type=np.int32, default=10000)

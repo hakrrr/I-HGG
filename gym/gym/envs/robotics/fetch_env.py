@@ -89,9 +89,10 @@ class FetchEnv(robot_env.RobotEnv):
         utils.mocap_set_action(self.sim, action)
 
     def _get_obs(self):
+        # First time set arm invis
         if self.visible:
-            # self._set_arm_visible(False)
-            self.visible = False
+            self._set_arm_visible(False)
+            self.visible = True
         # positions
         grip_pos = self.sim.data.get_site_xpos('robot0:grip')
         dt = self.sim.nsubsteps * self.sim.model.opt.timestep
@@ -113,13 +114,11 @@ class FetchEnv(robot_env.RobotEnv):
         gripper_vel = robot_qvel[-2:] * dt  # change to a scalar if the gripper is made symmetric
 
         if not self.has_object:
-            # achieved_goal = grip_pos.copy()
-            achieved_goal = self._get_image('ach_fetch.png')
+            achieved_goal = grip_pos.copy()
+            # achieved_goal = self._get_image()
         else:
-            # achieved_goal = np.squeeze(object_pos.copy())
-            # self._set_arm_visible(False)
-            achieved_goal = self._get_image('ach_fetch.png')
-            self._set_arm_visible()
+            achieved_goal = np.squeeze(object_pos.copy())
+            # achieved_goal = self._get_image()
 
         obj_pos = np.squeeze(object_pos.copy())
         obs = np.concatenate([
@@ -146,15 +145,6 @@ class FetchEnv(robot_env.RobotEnv):
             for i in self.robot_arm_ids:
                 self.sim.model.geom_rgba[i][3] = 1.0
 
-    def _viewer_setup_old(self):
-        body_id = self.sim.model.body_name2id('robot0:gripper_link')
-        lookat = self.sim.data.body_xpos[body_id]
-        for idx, value in enumerate(lookat):
-            self.viewer.cam.lookat[idx] = value
-        self.viewer.cam.distance = 1.
-        self.viewer.cam.azimuth = 180.
-        self.viewer.cam.elevation = 90.
-
     def _render_callback(self):
         # Visualize target.
         sites_offset = (self.sim.data.site_xpos - self.sim.model.site_pos).copy()
@@ -178,7 +168,7 @@ class FetchEnv(robot_env.RobotEnv):
         self.sim.forward()
         return True
 
-    def _sample_goal_old(self):
+    def _sample_goal(self):
         if self.has_object:
             goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
             goal += self.target_offset
@@ -219,13 +209,11 @@ class FetchEnv(robot_env.RobotEnv):
     def render(self, mode='human', width=500, height=500, cam_name="cam_1"):
         return super(FetchEnv, self).render(mode, width, height, cam_name)
 
-    def _generate_state(self):
+    def _generate_state_old(self):
         threshold = 0.2  # originally 0.2
         self._set_gripper([random.uniform(1.08 - threshold, 1.52 + threshold),
                           random.uniform(1.3 - threshold, 1.3 + threshold) - 0.55, 0.43])
         self.sim.forward()
-        #for _ in range(1):
-        #    self.sim.step()
 
         offset = 0.03
         goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-self.target_range-offset, self.target_range+offset, size=3)

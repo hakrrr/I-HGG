@@ -9,7 +9,7 @@ from torchvision.utils import save_image
 
 
 img_size = 84
-n_path = '../data/HandManipulate/vae_model_block'
+n_path = '../../data/HandManipulate/vae_model_egg'
 
 
 class VAE(nn.Module):
@@ -69,7 +69,7 @@ def loss_function(recon_x, x, mu, logvar):
 def train(epoch, model, optimizer, device, log_interval, batch_size):
     model.train()
     train_loss = 0
-    data_set = np.load('../data/HandManipulate/vae_train_data_block.npy')
+    data_set = np.load('../../data/HandManipulate/vae_train_data_egg.npy')
     data_size = len(data_set)
     data_set = np.split(data_set, data_size / batch_size)
 
@@ -119,6 +119,12 @@ def train_Vae(batch_size=128, epochs=100, no_cuda=False, seed=1, log_interval=9,
 
     for epoch in range(1, epochs + 1):
         train(epoch, model, optimizer, device, log_interval, batch_size)
+        # test(epoch, model, test_loader, batch_size, device)
+        # with torch.no_grad():
+        #    sample = torch.randn(64, 5).to(device)
+        #    sample = model.decode(sample).cpu()
+        #    save_image(sample.view(64, 3, img_size, img_size),
+        #               'results/sample.png')
         if not (epoch % 100):
             print('Saving Progress!')
             torch.save({
@@ -152,5 +158,5 @@ def load_Vae(path, no_cuda=False, seed=1):
 if __name__ == '__main__':
     # Train VAE
     print('Train VAE...')
-    train_Vae(batch_size=128, epochs=100, load=False)
+    train_Vae(batch_size=128, epochs=100, load=True)
     print('Successfully trained VAE')

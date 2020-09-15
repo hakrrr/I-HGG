@@ -69,7 +69,7 @@ class MatchSampler:
 		# 0.46 Normal Fetch Push # 5.796451 / 3.06 Image-based Fetch Push
 		# 0.25 Normal Fetch Reach # 5.263001 Image-based Fetch Reach
 		# 0.648 Normal Fetch Slide # ? Image-based Fetch Slide
-		# 0.616 Normal Fetch Pick # 4.8738904 Image-based Fetch Pick
+		# 0.616 Normal Fetch Pick # 5.5 Image-based Fetch Pick
 
 		self.max_dis = 0
 		for i in range(1000):
@@ -205,10 +205,9 @@ class HGGLearner:
 		self.learn_calls = 0
 
 		self.count = 0
-		img_size = 84
-		self.train_data = np.empty([1280*5, img_size, img_size, 3])
 
 	def generateTrainData(self, timestep, i):
+
 		if timestep % 5 == 0 and self.count < (1280 * 5):
 			rgb_array = np.array(self.env_List[i].render(mode='rgb_array', width=img_size, height=img_size))
 			# Image.fromarray(rgb_array).show()
@@ -219,7 +218,7 @@ class HGGLearner:
 			print('Count: ', self.count)
 		if self.count == 1280 * 5:
 			np.save('data/FetchPush/vae_train_data_push', self.train_data)
-			print('fin')
+			print('Finished')
 			self.count += 1
 
 	def learn(self, args, env, env_test, agent, buffer, write_goals=0):

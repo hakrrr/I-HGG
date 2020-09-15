@@ -127,8 +127,6 @@ class ManipulateEnv(hand_env.HandEnv):
             angle_diff = 2 * np.arccos(np.clip(quat_diff[..., 0], -1., 1.))
             d_rot = angle_diff
         assert d_pos.shape == d_rot.shape
-        # if d_rot < 0.2:
-        #    print(d_rot)
         return d_pos, d_rot
 
     def _goal_distance_new(self, goal_a, goal_b):
