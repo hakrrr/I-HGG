@@ -114,13 +114,14 @@ class FetchEnv(robot_env.RobotEnv):
 
         if not self.has_object:
             # achieved_goal = grip_pos.copy()
-            achieved_goal = self._get_image('ach_fetch_reach.png')
+            achieved_goal = self._get_image('ach_fetch.png')
         else:
             # achieved_goal = np.squeeze(object_pos.copy())
-            self._set_arm_visible(False)
-            achieved_goal = self._get_image('ach_fetch_pick.png')
+            # self._set_arm_visible(False)
+            achieved_goal = self._get_image('ach_fetch.png')
             self._set_arm_visible()
 
+        obj_pos = np.squeeze(object_pos.copy())
         obs = np.concatenate([
             grip_pos, object_pos.ravel(), object_rel_pos.ravel(), gripper_state, object_rot.ravel(),
             object_velp.ravel(), object_velr.ravel(), grip_velp, gripper_vel,
@@ -145,7 +146,7 @@ class FetchEnv(robot_env.RobotEnv):
             for i in self.robot_arm_ids:
                 self.sim.model.geom_rgba[i][3] = 1.0
 
-    def _viewer_setup(self):
+    def _viewer_setup_old(self):
         body_id = self.sim.model.body_name2id('robot0:gripper_link')
         lookat = self.sim.data.body_xpos[body_id]
         for idx, value in enumerate(lookat):
@@ -215,8 +216,8 @@ class FetchEnv(robot_env.RobotEnv):
         if self.has_object:
             self.height_offset = self.sim.data.get_site_xpos('object0')[2]
 
-    def render(self, mode='human', width=500, height=500):
-        return super(FetchEnv, self).render(mode, width, height)
+    def render(self, mode='human', width=500, height=500, cam_name="cam_1"):
+        return super(FetchEnv, self).render(mode, width, height, cam_name)
 
     def _generate_state(self):
         threshold = 0.2  # originally 0.2

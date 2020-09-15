@@ -68,8 +68,8 @@ class VanillaGoalEnv():
 		return self.compute_distance(obs['achieved_goal'], obs['desired_goal'])
 
 	def process_info_rotation(self, obs, reward, info):
-		# _, d_rot = self.env.env._goal_distance(obs['achieved_goal'], obs['desired_goal'])
-		d_rot = self.env.env._goal_distance(obs['achieved_goal'], obs['desired_goal'])
+		_, d_rot = self.env.env._goal_distance(obs['achieved_goal'], obs['desired_goal'])
+		# d_rot = self.env.env._goal_distance(obs['achieved_goal'], obs['desired_goal'])
 		return d_rot
 
 	def process_info_success(self, obs, reward, info):
@@ -92,8 +92,8 @@ class VanillaGoalEnv():
 		if self.args.env=='HandReach-v0':
 			return self.env.env._get_obs()
 		else:
-			#return self.rotate_obs(self.env.env._get_obs())
-			return self.env.env._get_obs()
+			return self.rotate_obs(self.env.env._get_obs())
+			#return self.env.env._get_obs()
 
 	def step(self, action):
 		# imaginary infinity horizon (without done signal)

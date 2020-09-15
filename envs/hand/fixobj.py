@@ -48,6 +48,7 @@ class FixedObjectGoalEnv(VanillaGoalEnv):
 				return False
 		assert is_on_palm()
 
+		# If generate goal is defined in interval then it is called
 		self.goal = self.generate_goal()
 		self.last_obs = (self.get_obs()).copy()
 		return self.get_obs()

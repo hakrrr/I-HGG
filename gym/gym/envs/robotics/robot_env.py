@@ -115,16 +115,33 @@ class RobotEnv(gym.GoalEnv):
             self.viewer = None
             self._viewers = {}
 
-    def render(self, mode='human', width=DEFAULT_SIZE, height=DEFAULT_SIZE):
+    def render(self, mode='human', width=DEFAULT_SIZE, height=DEFAULT_SIZE, cam_name="cam_1"):
         # self._render_callback()
-        if mode == 'rgb_array':
-            self._get_viewer(mode).render(width, height)
-            # window size used for old mujoco-py:
-            data = self._get_viewer(mode).read_pixels(width, height, depth=False)
-            # original image is upside-down, so flip it
-            return data[::-1, :, :]
-        elif mode == 'human':
-            self._get_viewer(mode).render()
+        rgb_array = self.sim.render(width=width, height=height, camera_name=cam_name)
+        rgb_array = np.rot90(rgb_array)
+        img = Image.fromarray(rgb_array, 'RGB')
+        img.show()
+        return rgb_array
+
+    '''
+    def render(self, mode='human', width=DEFAULT_SIZE, height=DEFAULT_SIZE, cam_name='camera_1'):
+    if mode == 'rgb_array':
+        x = self.sim.render(width=width, height=height, camera_name=cam_name)
+        img = Image.fromarray(x, 'RGB')
+        img.show()
+        return self.sim.render(width=width, height=height, camera_name=cam_name)
+
+    def render(self, mode='human', width=DEFAULT_SIZE, height=DEFAULT_SIZE):
+    # self._render_callback()
+    x = self.sim.render(width=100, height=100, camera_name="camera_1")
+    if mode == 'rgb_array':
+        self._get_viewer(mode).render(width, height)
+        # window size used for old mujoco-py:
+        data = self._get_viewer(mode).read_pixels(width, height, depth=False)
+        # original image is upside-down, so flip it
+        return data[::-1, :, :]
+    elif mode == 'human':
+        self._get_viewer(mode).render()
 
     def _get_viewer(self, mode):
         self.viewer = self._viewers.get(mode)
@@ -136,6 +153,7 @@ class RobotEnv(gym.GoalEnv):
             self._viewer_setup()
             self._viewers[mode] = self.viewer
         return self.viewer
+    '''
 
     # Extension methods
     # ----------------------------

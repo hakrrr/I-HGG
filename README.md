@@ -10,7 +10,7 @@ It is based on the implementation of G-HGG (Matthias Brucker, 2020).
 2. Python 3.5.2 (newer versions such as 3.6.8 should work as well)
 3. MuJoCo == 1.50 (see instructions on https://github.com/openai/mujoco-py)
 4. Install requirements
-5. Download the directory 'data' from [link] and place it into the root directory
+5. Download the directory 'data' from [https://syncandshare.lrz.de/getlink/fiMKUN6s6mENZfDh3MQkcSR1/] and place it into the project root directory
 ```bash
 pip install -r requirements.txt
 ```
@@ -42,7 +42,6 @@ python train.py --tag 100 --learn hgg --env=FetchPush-v1
 To plot the agent's performance on multiple training runs, copy all training run directories into one directory. For example, we put all FetchPushLabyrinth runs in a directory called BA_Labyrinth, same for FetchPickObstacle (BA_Obstacle), FetchPickNoObstacle (BA_NoObstacle) and FetchPickAndThrow (BA_Throw). naming=0 is recommended as default. For our result plot commands, have a look at create_result_figures.sh. 
 
 ```bash
-# Scheme: python plot.py log_dir env_id --naming <naming_code> --e_per_c <episodes per cycle>
 python plot.py figures/BA_Labyrinth FetchPushLabyrinth-v1 --naming 0 --e_per_c 20
 ```
 

@@ -29,20 +29,19 @@ class Tester:
 	def test_acc(self, key, env, agent):
 		acc_sum, obs = 0.0, []
 		# Space efficiency 10 * range = true rollouts
-		for _ in range(1):
+		for i in range(self.test_rollouts):
+			obs.append(goal_based_process(env[i].reset()))
+		for timestep in range(self.args.timesteps):
+			actions = agent.step_batch(obs)
+			obs, infos = [], []
 			for i in range(self.test_rollouts):
-				obs.append(goal_based_process(env[i].reset()))
-			for timestep in range(self.args.timesteps):
-				actions = agent.step_batch(obs)
-				obs, infos = [], []
-				for i in range(self.test_rollouts):
-					ob, reward, _, info = env[i].step(actions[i])
-					obs.append(goal_based_process(ob))
-					infos.append(info)
-			for i in range(self.test_rollouts):
-				# if infos[i]['Rewards'] > -50:
-				#	acc_sum += 1
-				acc_sum += infos[i]['Success']
+				ob, reward, _, info = env[i].step(actions[i])
+				obs.append(goal_based_process(ob))
+				infos.append(info)
+		for i in range(self.test_rollouts):
+			# if infos[i]['Rewards'] > -50:
+			#	acc_sum += 1
+			acc_sum += infos[i]['Success']
 
 		steps = self.args.buffer.counter
 		acc = acc_sum/self.test_rollouts

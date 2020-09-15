@@ -134,7 +134,7 @@ class ReplayBuffer_Episodic:
 			self.length += 1
 			self.steps.append(trajectory.length)
 		else:
-			idx = self.counter%self.args.buffer_size
+			idx = self.counter % self.args.buffer_size
 			for key in self.buffer.keys():
 				self.buffer[key][idx] = episode[key]
 			if self.energy:

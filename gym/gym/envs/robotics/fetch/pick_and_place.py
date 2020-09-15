@@ -26,6 +26,19 @@ class FetchPickAndPlaceEnv(fetch_env.FetchEnv, utils.EzPickle):
             initial_qpos=initial_qpos, reward_type=reward_type)
         utils.EzPickle.__init__(self)
 
+    def _viewer_setup(self):
+        # xmat = self.sim.data.cam_xmat[5]
+        # xmat = [5.82663390e-04, - 7.31688637e-01,  6.81638760e-01,  9.99999683e-01, 7.96326711e-04,
+        # 0.00000000e+00, -5.42807152e-04, 6.81638544e-01, 7.31688869e-01]
+        # self.sim.data.cam_xmat[0] = xmat
+        body_id = self.sim.model.body_name2id('robot0:gripper_link')
+        lookat = self.sim.data.body_xpos[body_id]
+        for idx, value in enumerate(lookat):
+            self.viewer.cam.lookat[idx] = value
+        self.viewer.cam.distance = 1.
+        self.viewer.cam.azimuth = 180.
+        self.viewer.cam.elevation = 90.
+
     def _sample_goal(self):
         goal = goal_set_fetch_pick[np.random.randint(5)]
         goal = self.fetch_pick_vae.format(goal)
@@ -38,10 +51,7 @@ class FetchPickAndPlaceEnv(fetch_env.FetchEnv, utils.EzPickle):
 
     def _get_image(self, img_name='default'):
         local_vae = self.fetch_pick_vae
-        np.array(self.render(mode='rgb_array',
-                             width=84, height=84))
-        rgb_array = np.array(self.render(mode='rgb_array',
-                                         width=84, height=84))
+        rgb_array = np.array(self.render(mode='rgb_array', width=84, height=84, cam_name="cam_2"))
         tensor = local_vae.format(rgb_array)
         x, y = local_vae.encode(tensor)
         obs = local_vae.reparameterize(x, y)

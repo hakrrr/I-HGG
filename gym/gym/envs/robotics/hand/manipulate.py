@@ -90,31 +90,16 @@ class ManipulateEnv(hand_env.HandEnv):
             relative_control=relative_control)
 
     def _get_achieved_goal(self):
-        if self.arm_visible:
-            self._set_arm_visible(False)
-            self.arm_visible = False
-        return self._get_image('ach_hand.png')
+        #if self.arm_visible:
+        #    self._set_arm_visible(False)
+        #    self.arm_visible = False
+        #return self._get_image('ach_hand.png')
         # Object position and rotation (old)
-        #object_qpos = self.sim.data.get_joint_qpos('object:joint')
-        #assert object_qpos.shape == (7,)
-        #return object_qpos
+        object_qpos = self.sim.data.get_joint_qpos('object:joint')
+        assert object_qpos.shape == (7,)
+        return object_qpos
 
-    def _get_image(self, img_name='default'):
-        if self.arm_visible:
-            self._set_arm_visible(False)
-            self.arm_visible = False
-
-        local_vae = self.hand_vae_egg
-        rgb_array = np.array(self.render(mode='rgb_array', width=84, height=84))
-        tensor = local_vae.format(rgb_array)
-        x, y = local_vae.encode(tensor)
-        obs = local_vae.reparameterize(x, y)
-        obs = obs.detach().cpu().numpy()
-        obs = np.squeeze(obs)
-        save_image(tensor.cpu().view(-1, 3, 84, 84), img_name)
-        return obs
-
-    def _goal_distance_old(self, goal_a, goal_b):
+    def _goal_distance(self, goal_a, goal_b):
         assert goal_a.shape == goal_b.shape
         assert goal_a.shape[-1] == 7
 
@@ -142,16 +127,17 @@ class ManipulateEnv(hand_env.HandEnv):
             angle_diff = 2 * np.arccos(np.clip(quat_diff[..., 0], -1., 1.))
             d_rot = angle_diff
         assert d_pos.shape == d_rot.shape
+        # if d_rot < 0.2:
+        #    print(d_rot)
         return d_pos, d_rot
 
-    def _goal_distance(self, goal_a, goal_b):
+    def _goal_distance_new(self, goal_a, goal_b):
         assert goal_a.shape == goal_b.shape
         dist = np.linalg.norm(goal_a - goal_b, axis=-1)
         return dist
 
     # GoalEnv methods
     # ----------------------------
-
     def compute_reward(self, achieved_goal, goal, info):
         if self.reward_type == 'sparse':
             success = self._is_success(achieved_goal, goal).astype(np.float32)
@@ -164,15 +150,14 @@ class ManipulateEnv(hand_env.HandEnv):
 
     # RobotEnv methods
     # ----------------------------
-
-    def _is_success_old(self, achieved_goal, desired_goal):
+    def _is_success(self, achieved_goal, desired_goal):
         d_rot, d_pos = self._goal_distance(achieved_goal, desired_goal)
         achieved_pos = (d_pos < self.distance_threshold).astype(np.float32)
         achieved_rot = (d_rot < self.rotation_threshold).astype(np.float32)
         achieved_both = achieved_rot * achieved_pos
         return achieved_both
 
-    def _is_success(self, achieved_goal, desired_goal):
+    def _is_success_new(self, achieved_goal, desired_goal):
         distance = self._goal_distance(achieved_goal, desired_goal)
         achieved = (distance < self.all_threshold).astype(np.float32)
         return achieved
@@ -242,7 +227,7 @@ class ManipulateEnv(hand_env.HandEnv):
                 return False
         return is_on_palm()
 
-    def _sample_goal_old(self):
+    def _sample_goal(self):
         # Select a goal for the object position.
         target_pos = None
         if self.target_position == 'random':
@@ -305,6 +290,7 @@ class ManipulateEnv(hand_env.HandEnv):
         object_qvel = self.sim.data.get_joint_qvel('object:joint')
         achieved_goal = self._get_achieved_goal().ravel()  # this contains the object position + rotation
         observation = np.concatenate([robot_qpos, robot_qvel, object_qvel, achieved_goal])
+
         return {
             'observation': observation.copy(),
             'achieved_goal': achieved_goal.copy(),
@@ -334,7 +320,7 @@ class HandBlockEnv(ManipulateEnv, utils.EzPickle):
             target_position_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]),
             reward_type=reward_type)
 
-    def _sample_goal(self):
+    def _sample_goal_new(self):
         goal = goal_set_block[3]  # np.random.randint(5)
         goal = self.hand_vae_block.format(goal)
         # save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
@@ -378,7 +364,7 @@ class HandEggEnv(ManipulateEnv, utils.EzPickle):
             target_position_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]),
             reward_type=reward_type)
 
-    def _sample_goal(self):
+    def _sample_goal_new(self):
         #goal = goal_set[np.random.randint(5)]
         goal = goal_set_egg[19]
         goal = self.hand_vae_egg.format(goal)
@@ -424,7 +410,7 @@ class HandPenEnv(ManipulateEnv, utils.EzPickle):
             randomize_initial_rotation=False, reward_type=reward_type,
             ignore_z_target_rotation=True, distance_threshold=0.05)
 
-    def _sample_goal(self):
+    def _sample_goal_new(self):
         #goal = goal_set[np.random.randint(5)]
         goal = goal_set_pen[19]
         goal = self.hand_vae_pen.format(goal)

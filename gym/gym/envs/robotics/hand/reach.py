@@ -58,7 +58,7 @@ def goal_distance(goal_a, goal_b):
 
 class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
     def __init__(
-        self, distance_threshold=0.049, n_substeps=20, relative_control=False,
+        self, distance_threshold=0.02, n_substeps=20, relative_control=False,
         initial_qpos=DEFAULT_INITIAL_QPOS, reward_type='sparse',
     ):
         utils.EzPickle.__init__(**locals())
@@ -71,9 +71,9 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
             relative_control=relative_control)
 
     def _get_achieved_goal(self):
-        return self._get_image('ach_hand_reach.png')
-        #goal = [self.sim.data.get_site_xpos(name) for name in FINGERTIP_SITE_NAMES]
-        #return np.array(goal).flatten()
+        #return self._get_image('ach_hand_reach.png')
+        goal = [self.sim.data.get_site_xpos(name) for name in FINGERTIP_SITE_NAMES]
+        return np.array(goal).flatten()
 
     def _get_image(self, img_name='default'):
         local_vae = self.hand_vae_reach
@@ -114,7 +114,7 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
             'desired_goal': self.goal.copy(),
         }
 
-    def _sample_goal_old(self):
+    def _sample_goal(self):
         thumb_name = 'robot0:S_thtip'
         finger_names = [name for name in FINGERTIP_SITE_NAMES if name != thumb_name]
         finger_name = self.np_random.choice(finger_names)
@@ -141,7 +141,7 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
             goal = self.initial_goal.copy()
         return goal.flatten()
 
-    def _sample_goal(self):
+    def _sample_goal_new(self):
         goal = goal_set_reach[np.random.randint(2)+3]  # np.random.randint(3)
         goal = self.hand_vae_reach.format(goal)
         # save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')

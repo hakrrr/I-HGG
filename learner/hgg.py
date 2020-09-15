@@ -27,8 +27,8 @@ class TrajectoryPool:
 			self.pool.append(trajectory.copy())
 			self.pool_init_state.append(init_state.copy())
 		else:
-			self.pool[self.counter%self.length] = trajectory.copy()
-			self.pool_init_state[self.counter%self.length] = init_state.copy()
+			self.pool[self.counter % self.length] = trajectory.copy()
+			self.pool_init_state[self.counter % self.length] = init_state.copy()
 		self.counter += 1
 
 	def pad(self):
