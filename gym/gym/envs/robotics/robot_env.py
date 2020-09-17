@@ -94,8 +94,8 @@ class RobotEnv(gym.GoalEnv):
         }
         reward = self.compute_reward(obs['achieved_goal'], self.goal, info)
         # Debug: Check if VAE encodes correctly
-        # ach1 = torch.from_numpy(obs['achieved_goal']).float().to('cuda')
-        # save_image(self.hand_vae_reach.decode(ach1).view(-1, 3, 84, 84), 'ach_latent.png')
+        # ach1 = torch.from_numpy(obs['achieved_goal'][3:]).float().to('cuda')
+        # save_image(self.fetch_pick_vae_1.decode(ach1*9.1).view(-1, 3, 84, 84), 'ach_latent.png')
         return obs, reward, done, info
 
     def reset(self):
@@ -112,10 +112,12 @@ class RobotEnv(gym.GoalEnv):
         obs = self._get_obs()
 
         # Generate state
+        # self._generate_state()
+
         '''
-        train_data_0 = np.empty([1280*9, 84, 84, 3])
-        train_data_1 = np.empty([1280*9, 84, 84, 3])
-        for i in range(1280*9):
+        train_data_0 = np.empty([1280, 84, 84, 3])
+        train_data_1 = np.empty([1280, 84, 84, 3])
+        for i in range(1280):
             self._generate_state()
             img_0 = self.render(width=84, height=84, cam_name='cam_0')
             img_1 = self.render(width=84, height=84, cam_name='cam_1')
@@ -127,11 +129,12 @@ class RobotEnv(gym.GoalEnv):
             train_data_1[i] = img_1
             if i % 1000 == 0:
                 print(i)
-        np.save('data/Fetch_Env/vae_train_data_pick_0', train_data_0)
-        np.save('data/Fetch_Env/vae_train_data_pick_1', train_data_1)
+        np.save('data/Fetch_Env/vae_goal_pick_0', train_data_0)
+        np.save('data/Fetch_Env/vae_goal_pick_1', train_data_1)
         print('Finished')
         sys.exit()
         '''
+
         return obs
 
     def close(self):

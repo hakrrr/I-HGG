@@ -69,7 +69,7 @@ class MatchSampler:
 		# 0.46 Normal Fetch Push # 5.796451 / 3.06 Image-based Fetch Push
 		# 0.25 Normal Fetch Reach # 5.263001 Image-based Fetch Reach
 		# 0.648 Normal Fetch Slide # ? Image-based Fetch Slide
-		# 0.616 Normal Fetch Pick # 5.5 Image-based Fetch Pick
+		# 0.616 Normal Fetch Pick # 2.1 Image-based Fetch Pick
 
 		self.max_dis = 0
 		for i in range(1000):

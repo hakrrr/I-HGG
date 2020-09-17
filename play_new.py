@@ -43,7 +43,8 @@ class Player:
         acc_sum, obs = 0.0, []
         for i in range(self.test_rollouts):
             obs.append(goal_based_process(env.reset()))
-            goal_img = Image.open('videos/goal/goal.png')
+            goal_img_rgb = Image.open('videos/goal/goal_0.png')
+
             for timestep in range(25):
                 actions = self.my_step_batch(obs)
                 obs, infos = [], []
@@ -51,7 +52,8 @@ class Player:
                 obs.append(goal_based_process(ob))
                 infos.append(info)
                 # if not timestep % 1:
-                rgb_array = np.array(env.render(mode='rgb_array', width=512, height=512))
+                rgb_array = np.array(env.render(mode='rgb_array', width=512, height=512, cam_name="cam_0"))
+
                 path = 'videos/frames/frame_' + str(i * 50 + timestep) + '.png'
                 rgb_array = self.get_concat_h(Image.fromarray(rgb_array), goal_img)
                 rgb_array.save(path)

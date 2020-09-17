@@ -17,9 +17,9 @@ class VAE(nn.Module):
         super(VAE, self).__init__()
         self.fc1 = nn.Linear(img_size * img_size * 3, 400)
         # Try to reduce
-        self.fc21 = nn.Linear(400, 3)
-        self.fc22 = nn.Linear(400, 3)
-        self.fc3 = nn.Linear(3, 400)
+        self.fc21 = nn.Linear(400, 2)
+        self.fc22 = nn.Linear(400, 2)
+        self.fc3 = nn.Linear(2, 400)
         self.fc4 = nn.Linear(400, img_size * img_size * 3)
 
     def encode(self, x):
@@ -29,13 +29,12 @@ class VAE(nn.Module):
     def reparameterize(self, mu, logvar):
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
-        return (mu + eps * std)
-        #return mu
+        # return (mu + eps * std)
+        return mu * 0.289
 
-    # maybe z * 11
     def decode(self, z):
         h3 = F.relu(self.fc3(z))
-        return torch.sigmoid(self.fc4(h3))
+        return torch.sigmoid(self.fc4(h3) / 0.289)
 
     def forward(self, x):
         mu, logvar = self.encode(x.reshape(-1, img_size * img_size * 3))
@@ -52,6 +51,8 @@ class VAE(nn.Module):
 
 # Reconstruction + KL divergence losses summed over all elements and batch
 def loss_function(recon_x, x, mu, logvar):
+    # Disentanglement
+    Beta = 5
     BCE = F.binary_cross_entropy(recon_x, x.reshape(-1, img_size * img_size * 3), reduction='sum')
 
     # see Appendix B from VAE paper:
@@ -60,9 +61,9 @@ def loss_function(recon_x, x, mu, logvar):
     # 0.5 * sum(1 + log(sigma^2) - mu^2 - sigma^2)
 
     # Try to adjust
-    KLD = -3 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+    KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
 
-    return BCE + KLD
+    return BCE + (Beta * KLD)
 
 
 # torch.Size([128, 1, img_size, img_size])
@@ -95,7 +96,7 @@ def train(epoch, model, optimizer, device, log_interval, batch_size):
                 epoch, (batch_idx+1) * len(data), data_size,
                 100. * (batch_idx+1) / len(data_set),
                 loss.item() / len(data)))
-            print('Loss: ', loss.item() / len(data))
+            print('Loss: ', loss.item() / data_size)
 
     print('====> Epoch: {} Average loss: {:.4f}'.format(
         epoch, train_loss / data_size))
@@ -158,5 +159,5 @@ def load_Vae(path, no_cuda=False, seed=1):
 if __name__ == '__main__':
     # Train VAE
     print('Train VAE...')
-    train_Vae(batch_size=128, epochs=100, load=True)
+    train_Vae(batch_size=128, epochs=200, load=False)
     print('Successfully trained VAE')

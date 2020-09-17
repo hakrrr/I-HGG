@@ -23,6 +23,7 @@ class FixedObjectGoalEnv(VanillaGoalEnv):
 			object_qpos[:2] = object_xpos
 			self.sim.data.set_joint_qpos('object0:joint', object_qpos)
 
+		# Goes to interval if defined
 		self.sim.forward()
 		self.goal = self.generate_goal()
 		self.last_obs = (self.get_obs()).copy()
