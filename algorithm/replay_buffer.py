@@ -55,9 +55,9 @@ class Trajectory:
 			velocity = diff / delta_t
 			kinetic_energy = 0.5 * m * np.power(velocity, 2)
 			kinetic_energy = np.sum(kinetic_energy, axis=2)
-			energy_totoal = w_potential * potential_energy + w_linear*kinetic_energy
-			energy_diff = np.diff(energy_totoal, axis=1)
-			energy_transition = energy_totoal.copy()
+			energy_total = w_potential * potential_energy + w_linear*kinetic_energy
+			energy_diff = np.diff(energy_total, axis=1)
+			energy_transition = energy_total.copy()
 			energy_transition[:, 1::] = energy_diff.copy()
 			energy_transition = np.clip(energy_transition, 0, clip_energy)
 			energy_transition_total = np.sum(energy_transition, axis=1)
@@ -87,9 +87,9 @@ class Trajectory:
 			velocity = diff / delta_t
 			kinetic_energy = 0.5 * m * np.power(velocity, 2)
 			kinetic_energy = np.sum(kinetic_energy, axis=2)
-			energy_totoal = w_potential*potential_energy + w_linear*kinetic_energy + w_rotational*rotational_energy
-			energy_diff = np.diff(energy_totoal, axis=1)
-			energy_transition = energy_totoal.copy()
+			energy_total = w_potential*potential_energy + w_linear*kinetic_energy + w_rotational*rotational_energy
+			energy_diff = np.diff(energy_total, axis=1)
+			energy_transition = energy_total.copy()
 			energy_transition[:, 1::] = energy_diff.copy()
 			energy_transition = np.clip(energy_transition, 0, clip_energy)
 			energy_transition_total = np.sum(energy_transition, axis=1)

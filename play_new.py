@@ -19,7 +19,8 @@ class Player:
         self.args.timesteps = self.env.env.env.spec.max_episode_steps
         self.env_test = make_env(args)
         self.info = []
-        self.test_rollouts = 10
+        self.test_rollouts = 20
+        self.timesteps = 50
 
         # get current policy from path (restore tf session + graph)
         self.play_dir = args.play_path
@@ -41,33 +42,34 @@ class Player:
         # play policy on env
         env = self.env
         acc_sum, obs = 0.0, []
+        np.random.seed(5)
         for i in range(self.test_rollouts):
             obs.append(goal_based_process(env.reset()))
-            goal_img_rgb = Image.open('videos/goal/goal_0.png')
+            # Get Goal Image & resize
+            goal_img = Image.open('v.png')
+            goal_img = goal_img.resize((512, 512))
+            goal_img.putalpha(70)
 
-            for timestep in range(25):
+            for timestep in range(self.timesteps):
                 actions = self.my_step_batch(obs)
                 obs, infos = [], []
                 ob, _, _, info = env.step(actions[0])
                 obs.append(goal_based_process(ob))
                 infos.append(info)
-                # if not timestep % 1:
                 rgb_array = np.array(env.render(mode='rgb_array', width=512, height=512, cam_name="cam_0"))
+                path = 'videos/frames/frame_' + str(i * self.timesteps + timestep) + '.png'
 
-                path = 'videos/frames/frame_' + str(i * 50 + timestep) + '.png'
-                rgb_array = self.get_concat_h(Image.fromarray(rgb_array), goal_img)
-                rgb_array.save(path)
-                    # Image.fromarray(rgb_array).show()
-                    # time.sleep(.3)
-                    #for proc in psutil.process_iter():
-                    #    if proc.name() == "display":
-                    #        proc.kill()
+                # Overlay Images
+                bg = Image.fromarray(rgb_array)
+                bg.putalpha(288)
+                bg = Image.alpha_composite(bg, goal_img)
+                bg.save(path)
 
-    def get_concat_h(self, im1, im2):
-        dst = Image.new('RGB', (im1.width + im2.width, im1.height))
-        dst.paste(im1, (0, 0))
-        dst.paste(im2, (im1.width, 0))
-        return dst
+                # Image.fromarray(rgb_array).show()
+                # time.sleep(.3)
+                # for proc in psutil.process_iter():
+                #    if proc.name() == "display":
+                #        proc.kill()
 
     def make_video(self, path_to_folder, ext_end):
         image_files = [f for f in os.listdir(path_to_folder) if f.endswith(ext_end)]
@@ -78,7 +80,7 @@ class Player:
             height, width, layers = img.shape
             size = (width, height)
             img_array.append(img)
-        out = cv2.VideoWriter('videos/hand_reach.avi', cv2.VideoWriter_fourcc(*'DIVX'), 4, size)
+        out = cv2.VideoWriter('videos/fetch_slide.avi', cv2.VideoWriter_fourcc(*'DIVX'), 4, size)
         for i in range(len(img_array)):
             out.write(img_array[i])
         out.release()

@@ -60,9 +60,9 @@ class VanillaGoalEnv():
 	def step(self, action):
 		# imaginary infinity horizon (without done signal)
 		obs, reward, done, info = self.env.step(action)
-		info = self.process_info(obs, reward, info)
-		reward = self.compute_reward((obs['achieved_goal'],self.last_obs['achieved_goal']), obs['desired_goal'])
-		self.last_obs = obs.copy()
+		# info = self.process_info(obs, reward, info)
+		# reward = self.compute_reward((obs['achieved_goal'], self.last_obs['achieved_goal']), obs['desired_goal'])
+		# self.last_obs = obs.copy()
 		return obs, reward, False, info
 
 	def reset_ep(self):

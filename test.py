@@ -13,7 +13,7 @@ class Tester:
 		self.info = []
 		if args.save_acc:
 			make_dir('log/accs', clear=False)
-			self.test_rollouts = 10
+			self.test_rollouts = 30
 
 			self.env_List = []
 			self.env_test_List = []
@@ -26,9 +26,8 @@ class Tester:
 			for key in self.acc_record.keys():
 				self.info.append('Success'+'@blue')
 
-	def test_acc(self, key, env, agent):
+	def test_acc_old(self, key, env, agent):
 		acc_sum, obs = 0.0, []
-		# Space efficiency 10 * range = true rollouts
 		for i in range(self.test_rollouts):
 			obs.append(goal_based_process(env[i].reset()))
 		for timestep in range(self.args.timesteps):
@@ -39,10 +38,26 @@ class Tester:
 				obs.append(goal_based_process(ob))
 				infos.append(info)
 		for i in range(self.test_rollouts):
-			# if infos[i]['Rewards'] > -50:
-			#	acc_sum += 1
-			acc_sum += infos[i]['Success']
+			acc_sum += infos[i]['is_success']
 
+		steps = self.args.buffer.counter
+		acc = acc_sum/self.test_rollouts
+		self.acc_record[key].append((steps, acc))
+		self.args.logger.add_record('Success', acc)
+
+	def test_acc(self, key, env, agent):
+		acc_sum, obs, infos = 0.0, [], []
+		for i in range(self.test_rollouts):
+			obs.append(goal_based_process(env[i].reset()))
+			for timestep in range(self.args.timesteps):
+				actions = agent.step_batch(obs)
+				obs = []
+				ob, _, _, info = env[i].step(actions[0])
+				obs.append(goal_based_process(ob))
+			infos.append(info)
+
+		for i in range(self.test_rollouts):
+			acc_sum += infos[i]['is_success']
 		steps = self.args.buffer.counter
 		acc = acc_sum/self.test_rollouts
 		self.acc_record[key].append((steps, acc))

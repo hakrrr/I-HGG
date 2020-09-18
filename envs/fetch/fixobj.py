@@ -26,7 +26,7 @@ class FixedObjectGoalEnv(VanillaGoalEnv):
 		# Goes to interval if defined
 		self.sim.forward()
 		self.goal = self.generate_goal()
-		self.last_obs = (self.get_obs()).copy()
+		# self.last_obs = (self.get_obs()).copy()
 		return self.get_obs()
 
 	def generate_goal(self):

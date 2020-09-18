@@ -4,6 +4,7 @@ from torchvision.utils import save_image
 from gym import utils
 from gym.envs.robotics import fetch_env
 import numpy as np
+from PIL import Image
 
 from vae.import_vae import goal_set_fetch_pick_0
 from vae.import_vae import goal_set_fetch_pick_1
@@ -20,6 +21,7 @@ MODEL_XML_PATH = os.path.join('fetch', 'pick_and_place.xml')
 # edit fetch_env: goal_distance
 # edit fetch_env: _is_success
 # edit fetch_env: compute_reward
+# edit test.py: test_acc
 
 
 class FetchPickAndPlaceEnv(fetch_env.FetchEnv, utils.EzPickle):
@@ -49,12 +51,13 @@ class FetchPickAndPlaceEnv(fetch_env.FetchEnv, utils.EzPickle):
     '''
 
     def _sample_goal(self):
-        index = np.random.randint(10) + 3
+        # Sample randomly from goalset
+        index = np.random.randint(100)
         goal_0 = goal_set_fetch_pick_0[index]
         #goal_1 = goal_set_fetch_pick_1[index]
         goal_0 = self.fetch_pick_vae_0.format(goal_0)
         #goal_1 = self.fetch_pick_vae_1.format(goal_1)
-        save_image(goal_0.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal_0.png')
+        save_image(goal_0.cpu().view(-1, 3, self.img_size, self.img_size), 'v.png')
         #save_image(goal_1.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal_1.png')
 
         x_0, y_0 = self.fetch_pick_vae_0.encode(goal_0)
@@ -100,13 +103,15 @@ class FetchPickAndPlaceEnv(fetch_env.FetchEnv, utils.EzPickle):
         object_qpos[:3] = goal[:3]
         object_qpos[3:] = [1, 0, 0, 0]
         self.sim.data.set_joint_qpos('object0:joint', object_qpos)
-        for _ in range(2):
+        for _ in range(15):
             self.sim.step()
 
         # Check if inside checkbox:
         pos = self.sim.data.get_joint_qpos('object0:joint').copy()
         if pos[0] < 1.15 or pos[0] > 1.45 or pos[1] < 0.6 or pos[1] > 1.0 or pos[2] < 0.42 or pos[2] > .7:
             self._generate_state()
+        # Image.fromarray(np.array(self.render(mode='rgb_array', width=300, height=300, cam_name="cam_0"))).show()
+
         # latent = self._get_image()
 
         '''

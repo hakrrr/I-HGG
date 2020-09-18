@@ -4,17 +4,7 @@ from gym.envs.robotics.fetch.pick_and_place import FetchPickAndPlaceEnv
 from gym.envs.robotics.fetch.push import FetchPushEnv
 from gym.envs.robotics.fetch.reach import FetchReachEnv
 
-from gym.envs.robotics.fetch.pick_obstacle import FetchPickObstacleEnv
-from gym.envs.robotics.fetch.pick_noobstacle import FetchPickNoObstacleEnv
-from gym.envs.robotics.fetch.push_obstacle import FetchPushObstacleEnv
-from gym.envs.robotics.fetch.push_noobstacle import FetchPushNoObstacleEnv
-from gym.envs.robotics.fetch.push_labyrinth import FetchPushLabyrinthEnv
-from gym.envs.robotics.fetch.pick_and_throw import FetchPickAndThrowEnv
 from gym.envs.robotics.fetch.pick_and_sort import FetchPickAndSortEnv
-from gym.envs.robotics.fetch.slide_new import FetchSlideNewEnv
-from gym.envs.robotics.fetch.push_new import FetchPushNewEnv
-from gym.envs.robotics.fetch.pick_and_place_new import FetchPickAndPlaceNewEnv
-from gym.envs.robotics.fetch.reach_new import FetchReachNewEnv
 from gym.envs.robotics.fetch.curling import FetchCurlingEnv
 
 from gym.envs.robotics.hand.reach import HandReachEnv

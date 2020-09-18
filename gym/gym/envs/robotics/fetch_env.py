@@ -119,13 +119,13 @@ class FetchEnv(robot_env.RobotEnv):
         else:
             # achieved_goal = np.squeeze(object_pos.copy())
             self._set_arm_visible(False)
-            achieved_goal = self._get_image()
+            achieved_goal = self._get_image().copy()
             self._set_arm_visible()
 
-        obj_pos = np.squeeze(object_pos.copy())
+        # obj_pos = np.squeeze(object_pos.copy())
         obs = np.concatenate([
             grip_pos, object_pos.ravel(), object_rel_pos.ravel(), gripper_state, object_rot.ravel(),
-            object_velp.ravel(), object_velr.ravel(), grip_velp, gripper_vel,
+            object_velp.ravel(), object_velr.ravel(), grip_velp, gripper_vel, achieved_goal.ravel()
         ])
 
         return {
@@ -148,7 +148,7 @@ class FetchEnv(robot_env.RobotEnv):
                 self.sim.model.geom_rgba[i][3] = 1.0
 
     def _render_callback(self):
-        # Visualize target.
+        # Visualize target
         sites_offset = (self.sim.data.site_xpos - self.sim.model.site_pos).copy()
         site_id = self.sim.model.site_name2id('target0')
         self.sim.model.site_pos[site_id] = self.goal - sites_offset[0]
@@ -170,7 +170,7 @@ class FetchEnv(robot_env.RobotEnv):
         self.sim.forward()
         return True
 
-    def _sample_goal_old(self):
+    def _sample_goal(self):
         if self.has_object:
             goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
             goal += self.target_offset
@@ -188,8 +188,8 @@ class FetchEnv(robot_env.RobotEnv):
     def _is_success(self, achieved_goal, desired_goal):
         d = goal_distance(achieved_goal, desired_goal)
         # Extra height
-        h = np.linalg.norm(achieved_goal[2:] - desired_goal[2:], axis=-1)
-        return (d < self.distance_threshold).astype(np.float32) and (h < 0.8).astype(np.float32)
+        # h = np.linalg.norm(achieved_goal[2:] - desired_goal[2:], axis=-1)
+        return (d < self.distance_threshold).astype(np.float32)
 
     def _env_setup(self, initial_qpos):
         for name, value in initial_qpos.items():

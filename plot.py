@@ -171,7 +171,6 @@ if __name__ == "__main__":
                     data[config][run] = []
                 data[config][run].append((x, y))
 
-
     # Plot data.
     print('exporting {}'.format(env_id))
     plt.clf()

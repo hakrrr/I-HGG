@@ -4,6 +4,7 @@ from envs import goal_distance_obs
 from utils.tf_utils import get_vars, Normalizer
 from algorithm.replay_buffer import goal_based_process
 
+
 class DDPG:
 	def __init__(self, args):
 		self.args = args

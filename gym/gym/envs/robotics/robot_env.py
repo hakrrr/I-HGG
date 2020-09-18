@@ -112,28 +112,27 @@ class RobotEnv(gym.GoalEnv):
         obs = self._get_obs()
 
         # Generate state
-        # self._generate_state()
 
-        '''
-        train_data_0 = np.empty([1280, 84, 84, 3])
-        train_data_1 = np.empty([1280, 84, 84, 3])
-        for i in range(1280):
+
+        train_data_0 = np.empty([1280*9, 84, 84, 3])
+        # train_data_1 = np.empty([1280, 84, 84, 3])
+        for i in range(1280*9):
             self._generate_state()
             img_0 = self.render(width=84, height=84, cam_name='cam_0')
-            img_1 = self.render(width=84, height=84, cam_name='cam_1')
+            # img_1 = self.render(width=84, height=84, cam_name='cam_1')
             # img_one = Image.fromarray(img_0, 'RGB')
             # img_two = Image.fromarray(img_1, 'RGB')
             # img_one.show()
             # img_two.show()
             train_data_0[i] = img_0
-            train_data_1[i] = img_1
+            # train_data_1[i] = img_1
             if i % 1000 == 0:
                 print(i)
-        np.save('data/Fetch_Env/vae_goal_pick_0', train_data_0)
-        np.save('data/Fetch_Env/vae_goal_pick_1', train_data_1)
+        np.save('data/Fetch_Env/slide_goal_set.npy', train_data_0)
+        # np.save('data/Fetch_Env/vae_goal_pick_1', train_data_1)
         print('Finished')
         sys.exit()
-        '''
+
 
         return obs
 
@@ -144,6 +143,7 @@ class RobotEnv(gym.GoalEnv):
             self._viewers = {}
 
     def render(self, mode='human', width=DEFAULT_SIZE, height=DEFAULT_SIZE, cam_name="cam_1"):
+        # Visualize target
         # self._render_callback()
         rgb_array = self.sim.render(width=width, height=height, camera_name=cam_name)
         rgb_array = np.rot90(rgb_array)

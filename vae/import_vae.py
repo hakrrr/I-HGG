@@ -30,7 +30,7 @@ vae_hand_reach = VAE_HAND_REACH.load_Vae(path='data/Hand_Env/vae_model_reach')
 goal_set_fetch_push = np.load('data/Fetch_Env/push_goal_set.npy')
 goal_set_fetch_reach = np.load('data/Fetch_Env/reach_goal_set.npy')
 goal_set_fetch_slide = np.load('data/Fetch_Env/slide_goal_set.npy')
-goal_set_fetch_pick_0 = np.load('data/Fetch_Env/pick_goal_set_000.npy')
+goal_set_fetch_pick_0 = np.load('data/Fetch_Env/vae_goal_pick_0.npy')
 goal_set_fetch_pick_1 = np.load('data/Fetch_Env/pick_goal_set_1.npy')
 
 # Hand
