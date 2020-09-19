@@ -19,8 +19,8 @@ class Player:
         self.args.timesteps = self.env.env.env.spec.max_episode_steps
         self.env_test = make_env(args)
         self.info = []
-        self.test_rollouts = 20
-        self.timesteps = 50
+        self.test_rollouts = 10
+        self.timesteps = 100
 
         # get current policy from path (restore tf session + graph)
         self.play_dir = args.play_path
@@ -46,7 +46,7 @@ class Player:
         for i in range(self.test_rollouts):
             obs.append(goal_based_process(env.reset()))
             # Get Goal Image & resize
-            goal_img = Image.open('v.png')
+            goal_img = Image.open('videos/goal/goal.png')
             goal_img = goal_img.resize((512, 512))
             goal_img.putalpha(70)
 

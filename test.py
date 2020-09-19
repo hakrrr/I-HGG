@@ -13,7 +13,7 @@ class Tester:
 		self.info = []
 		if args.save_acc:
 			make_dir('log/accs', clear=False)
-			self.test_rollouts = 30
+			self.test_rollouts = 15
 
 			self.env_List = []
 			self.env_test_List = []

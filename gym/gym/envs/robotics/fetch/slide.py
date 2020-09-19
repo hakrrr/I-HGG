@@ -2,10 +2,13 @@ import os
 import numpy as np
 import random
 
+import torch
 from PIL import Image
 from gym import utils
 from gym.envs.robotics import fetch_env
 from torchvision.utils import save_image
+from vae.import_vae import goal_set_fetch_slide
+from vae.import_vae import vae_fetch_slide
 
 # Change to normal hgg
 # edit envs/fetch/interval
@@ -34,24 +37,26 @@ class FetchSlideEnv(fetch_env.FetchEnv, utils.EzPickle):
             initial_qpos=initial_qpos, reward_type=reward_type)
         utils.EzPickle.__init__(self)
 
-    def _sample_goal_old(self):
+    def _sample_goal(self):
         # Sample randomly from goalset
-        index = np.random.randint(100)
-        goal_0 = goal_set_fetch_pick_0[index]
-        goal_0 = self.fetch_pick_vae_0.format(goal_0)
-        save_image(goal_0.cpu().view(-1, 3, self.img_size, self.img_size), 'v.png')
-        x_0, y_0 = self.fetch_pick_vae_0.encode(goal_0)
-        goal_0 = self.fetch_pick_vae_0.reparameterize(x_0, y_0)
+        index = np.random.randint(10)
+        goal_0 = goal_set_fetch_slide[index]
+        goal_0 = vae_fetch_slide.format(goal_0)
+        save_image(goal_0.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
+        x_0, y_0 = vae_fetch_slide.encode(goal_0)
+        goal_0 = vae_fetch_slide.reparameterize(x_0, y_0)
         goal_0 = goal_0.detach().cpu().numpy()
         goal = np.squeeze(goal_0)
+        ach1 = torch.from_numpy(goal_0).float().to('cuda')
+        save_image(vae_fetch_slide.decode(ach1).view(-1, 3, 84, 84), 'ach_latent.png')
 
         return goal.copy()
 
     def _get_image(self):
         rgb_array_0 = np.array(self.render(mode='rgb_array', width=84, height=84, cam_name="cam_0"))
-        tensor_0 = self.fetch_pick_vae_0.format(rgb_array_0)
-        x_0, y_0 = self.fetch_pick_vae_0.encode(tensor_0)
-        obs_0 = self.fetch_pick_vae_0.reparameterize(x_0, y_0)
+        tensor_0 = vae_fetch_slide.format(rgb_array_0)
+        x_0, y_0 = vae_fetch_slide.encode(tensor_0)
+        obs_0 = vae_fetch_slide.reparameterize(x_0, y_0)
         obs_0 = obs_0.detach().cpu().numpy()
         obs = np.squeeze(obs_0)
         save_image(tensor_0.cpu().view(-1, 3, 84, 84), 'fetch_slide_0.png')
@@ -61,8 +66,10 @@ class FetchSlideEnv(fetch_env.FetchEnv, utils.EzPickle):
         if self.visible:
             self._set_arm_visible(False)
             self.visible = False
-        # goal = [random.uniform(1.15, 1.45), random.uniform(0.6, 1.0), 0.43]
-        goal = [1.36, random.uniform(0.6, .9), .422]
+        goal = [random.uniform(.8, 1.51), random.uniform(0.5, 1), 0.422]
+        # For the Goal set
+        # goal = [1.36, random.uniform(0.6, .9), .422]
+        # goal = [1.36, .94, .422]
         object_qpos = self.sim.data.get_joint_qpos('object0:joint')
         object_qpos[:3] = goal[:3]
         object_qpos[3:] = [1, 0, 0, 0]
@@ -72,28 +79,10 @@ class FetchSlideEnv(fetch_env.FetchEnv, utils.EzPickle):
 
         # Check if inside checkbox:
         pos = self.sim.data.get_joint_qpos('object0:joint').copy()
-        if pos[0] < 1.15 or pos[0] > 1.45 or pos[1] < 0.55 or pos[1] > 1.0 or pos[2] < 0.4 or pos[2] > .7:
+        if pos[0] < .94 or pos[0] > 1.45 or pos[1] < 0.4 or pos[1] > 2 or pos[2] < 0.4 or pos[2] > .7:
             self._generate_state()
         # Image.fromarray(np.array(self.render(mode='rgb_array', width=300, height=300, cam_name="cam_0"))).show()
 
         # latent = self._get_image()
 
-        '''
-        goal = [1.31, .71, .4321]
-        object_qpos = self.sim.data.get_joint_qpos('object0:joint')
-        object_qpos[:3] = goal[:3]
-        object_qpos[3:] = [1, 0, 0, 0]
-        self.sim.data.set_joint_qpos('object0:joint', object_qpos)
-        for _ in range(2):
-            self.sim.step()
-        # Check if inside checkbox:
-        pos1 = self.sim.data.get_joint_qpos('object0:joint')
-        if pos1[0] < 1.15 or pos1[0] > 1.45 or pos1[1] < 0.6 or pos1[1] > 1.0 or pos1[2] < 0.42 or pos1[2] > .7:
-            self._generate_state()
-        latent1 = self._get_image()
-
-        print(np.linalg.norm(pos - pos1, axis=-1))
-        print(np.linalg.norm(latent1[:2] - latent[:2], axis=-1))
-        print(np.linalg.norm(latent1[2:] - latent[2:], axis=-1))
-        '''
         self._step_callback()

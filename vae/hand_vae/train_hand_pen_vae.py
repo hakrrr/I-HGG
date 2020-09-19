@@ -9,7 +9,7 @@ from torchvision.utils import save_image
 
 
 img_size = 84
-n_path = '../../data/HandManipulate/vae_model_pen'
+n_path = '../data/Hand_Env/vae_model_pen'
 
 
 class VAE(nn.Module):

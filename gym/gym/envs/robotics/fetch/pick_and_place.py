@@ -7,7 +7,7 @@ import numpy as np
 from PIL import Image
 
 from vae.import_vae import goal_set_fetch_pick_0
-from vae.import_vae import goal_set_fetch_pick_1
+# from vae.import_vae import goal_set_fetch_pick_1
 
 # Ensure we get the path separator correct on windows
 MODEL_XML_PATH = os.path.join('fetch', 'pick_and_place.xml')
@@ -57,7 +57,7 @@ class FetchPickAndPlaceEnv(fetch_env.FetchEnv, utils.EzPickle):
         #goal_1 = goal_set_fetch_pick_1[index]
         goal_0 = self.fetch_pick_vae_0.format(goal_0)
         #goal_1 = self.fetch_pick_vae_1.format(goal_1)
-        save_image(goal_0.cpu().view(-1, 3, self.img_size, self.img_size), 'v.png')
+        save_image(goal_0.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
         #save_image(goal_1.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal_1.png')
 
         x_0, y_0 = self.fetch_pick_vae_0.encode(goal_0)

@@ -9,7 +9,7 @@ from torchvision.utils import save_image
 
 
 img_size = 84
-n_path = '../../data/HandManipulate/vae_model_block'
+n_path = '../data/Hand_Env/vae_model_block'
 
 
 class VAE(nn.Module):
@@ -69,7 +69,7 @@ def loss_function(recon_x, x, mu, logvar):
 def train(epoch, model, optimizer, device, log_interval, batch_size):
     model.train()
     train_loss = 0
-    data_set = np.load('../../data/HandManipulate/vae_train_data_block.npy')
+    data_set = np.load('../data/Hand_Env/vae_train_data_block.npy')
     data_size = len(data_set)
     data_set = np.split(data_set, data_size / batch_size)
 

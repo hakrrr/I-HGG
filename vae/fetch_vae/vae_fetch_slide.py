@@ -9,7 +9,7 @@ from torchvision.utils import save_image
 
 
 img_size = 84
-n_path = '../../data/FetchPush/vae_model_slide'
+n_path = '../data/Fetch_Env/vae_model_slide'
 
 
 class VAE(nn.Module):
@@ -17,9 +17,9 @@ class VAE(nn.Module):
         super(VAE, self).__init__()
         self.fc1 = nn.Linear(img_size * img_size * 3, 400)
         # Try to reduce
-        self.fc21 = nn.Linear(400, 4)
-        self.fc22 = nn.Linear(400, 4)
-        self.fc3 = nn.Linear(4, 400)
+        self.fc21 = nn.Linear(400, 2)
+        self.fc22 = nn.Linear(400, 2)
+        self.fc3 = nn.Linear(2, 400)
         self.fc4 = nn.Linear(400, img_size * img_size * 3)
 
     def encode(self, x):
@@ -29,12 +29,12 @@ class VAE(nn.Module):
     def reparameterize(self, mu, logvar):
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
-        return (mu + eps * std) * 0.079
-        #return mu
+        # return (mu + eps * std) * 0.079
+        return mu * 0.2817
 
     # maybe z * 11
     def decode(self, z):
-        h3 = F.relu(self.fc3(z / 0.079))
+        h3 = F.relu(self.fc3(z / 0.2817))
         return torch.sigmoid(self.fc4(h3))
 
     def forward(self, x):
@@ -52,6 +52,7 @@ class VAE(nn.Module):
 
 # Reconstruction + KL divergence losses summed over all elements and batch
 def loss_function(recon_x, x, mu, logvar):
+    Beta = 4
     BCE = F.binary_cross_entropy(recon_x, x.reshape(-1, img_size * img_size * 3), reduction='sum')
 
     # see Appendix B from VAE paper:
@@ -62,14 +63,14 @@ def loss_function(recon_x, x, mu, logvar):
     # Try to adjust
     KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
 
-    return BCE + KLD
+    return BCE + (Beta * KLD)
 
 
 # torch.Size([128, 1, img_size, img_size])
 def train(epoch, model, optimizer, device, log_interval, batch_size):
     model.train()
     train_loss = 0
-    data_set = np.load('../../data/FetchPush/vae_train_data_slide.npy')
+    data_set = np.load('../data/Fetch_Env/vae_train_data_slide.npy')
     data_size = len(data_set)
     data_set = np.split(data_set, data_size / batch_size)
 

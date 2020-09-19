@@ -4,6 +4,7 @@ import numpy as np
 from envs.utils import goal_distance, goal_distance_obs
 from utils.os_utils import remove_color
 
+
 class VanillaGoalEnv():
 	def __init__(self, args):
 		self.args = args
@@ -98,10 +99,10 @@ class VanillaGoalEnv():
 	def step(self, action):
 		# imaginary infinity horizon (without done signal)
 		raw_obs, reward, done, info = self.env.step(action)
-		info = self.process_info(raw_obs, reward, info)
-		obs = self.get_obs()
-		self.last_obs = obs.copy()
-		return obs, reward, False, info
+		# info = self.process_info(raw_obs, reward, info)
+		# obs = self.get_obs()
+		# self.last_obs = obs.copy()
+		return raw_obs, reward, False, info
 
 	def reset_ep(self):
 		self.rewards = 0.0

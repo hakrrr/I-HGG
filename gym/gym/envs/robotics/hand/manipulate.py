@@ -4,10 +4,6 @@ import numpy as np
 from gym import utils, error
 from gym.envs.robotics import rotations, hand_env
 from gym.envs.robotics.utils import robot_get_obs
-
-from vae.import_vae import goal_set_egg
-from vae.import_vae import goal_set_block
-from vae.import_vae import goal_set_pen
 from torchvision.utils import save_image
 
 
@@ -16,8 +12,12 @@ try:
 except ImportError as e:
     raise error.DependencyNotInstalled("{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(e))
 
-# Edit: get_achieved_goal, is_success, goaldistance
-# Edit: envs/hand/vanilla get_obs
+# Change to normal hgg
+# edit envs/fetch/interval
+# edit here: sample_goal
+# edit here: dist_threshold (optional)
+# edit here: is_success (optional)
+# edit test.py: test_acc
 
 
 def quat_from_angle_and_axis(angle, axis):
@@ -75,12 +75,12 @@ class ManipulateEnv(hand_env.HandEnv):
         self.randomize_initial_position = randomize_initial_position
         self.distance_threshold = distance_threshold
         self.rotation_threshold = rotation_threshold
-        self.all_threshold = 2 * (rotation_threshold + distance_threshold)
+        #　self.all_threshold = 2 * (rotation_threshold + distance_threshold)
         self.reward_type = reward_type
         self.ignore_z_target_rotation = ignore_z_target_rotation
         self.img_size = 84
 
-        self.arm_visible = True
+        # self.arm_visible = True
         assert self.target_position in ['ignore', 'fixed', 'random']
         assert self.target_rotation in ['ignore', 'fixed', 'xyz', 'z', 'parallel']
         initial_qpos = initial_qpos or {}
@@ -149,10 +149,10 @@ class ManipulateEnv(hand_env.HandEnv):
     # RobotEnv methods
     # ----------------------------
     def _is_success(self, achieved_goal, desired_goal):
-        d_rot, d_pos = self._goal_distance(achieved_goal, desired_goal)
+        d_pos, d_rot = self._goal_distance(achieved_goal, desired_goal)
         achieved_pos = (d_pos < self.distance_threshold).astype(np.float32)
         achieved_rot = (d_rot < self.rotation_threshold).astype(np.float32)
-        achieved_both = achieved_rot * achieved_pos
+        achieved_both = achieved_pos * achieved_rot
         return achieved_both
 
     def _is_success_new(self, achieved_goal, desired_goal):
@@ -288,7 +288,6 @@ class ManipulateEnv(hand_env.HandEnv):
         object_qvel = self.sim.data.get_joint_qvel('object:joint')
         achieved_goal = self._get_achieved_goal().ravel()  # this contains the object position + rotation
         observation = np.concatenate([robot_qpos, robot_qvel, object_qvel, achieved_goal])
-
         return {
             'observation': observation.copy(),
             'achieved_goal': achieved_goal.copy(),
@@ -318,40 +317,6 @@ class HandBlockEnv(ManipulateEnv, utils.EzPickle):
             target_position_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]),
             reward_type=reward_type)
 
-    def _sample_goal_new(self):
-        goal = goal_set_block[3]  # np.random.randint(5)
-        goal = self.hand_vae_block.format(goal)
-        # save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
-        x, y = self.hand_vae_block.encode(goal)
-        goal = self.hand_vae_block.reparameterize(x, y)
-        goal = goal.detach().cpu().numpy()
-        goal = np.squeeze(goal)
-        return goal.copy()
-
-    def _viewer_setup(self):
-        body_id = self.sim.model.body_name2id('object')
-        lookat = self.sim.data.body_xpos[body_id]
-        for idx, value in enumerate(lookat):
-            self.viewer.cam.lookat[idx] = value
-        self.viewer.cam.distance = .25
-        self.viewer.cam.azimuth = 55
-        self.viewer.cam.elevation = -20.
-
-    def _get_image(self, img_name='default'):
-        if self.arm_visible:
-            self._set_arm_visible(False)
-            self.arm_visible = False
-
-        local_vae = self.hand_vae_block
-        rgb_array = np.array(self.render(mode='rgb_array', width=84, height=84))
-        tensor = local_vae.format(rgb_array)
-        x, y = local_vae.encode(tensor)
-        obs = local_vae.reparameterize(x, y)
-        obs = obs.detach().cpu().numpy()
-        obs = np.squeeze(obs)
-        save_image(tensor.cpu().view(-1, 3, 84, 84), img_name)
-        return obs
-
 
 class HandEggEnv(ManipulateEnv, utils.EzPickle):
     def __init__(self, target_position='random', target_rotation='xyz', reward_type='sparse'):
@@ -361,17 +326,6 @@ class HandEggEnv(ManipulateEnv, utils.EzPickle):
             target_rotation=target_rotation,
             target_position_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]),
             reward_type=reward_type)
-
-    def _sample_goal_new(self):
-        #goal = goal_set[np.random.randint(5)]
-        goal = goal_set_egg[19]
-        goal = self.hand_vae_egg.format(goal)
-        save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
-        x, y = self.hand_vae_egg.encode(goal)
-        goal = self.hand_vae_egg.reparameterize(x, y)
-        goal = goal.detach().cpu().numpy()
-        goal = np.squeeze(goal)
-        return goal.copy()
 
     def _viewer_setup(self):
         body_id = self.sim.model.body_name2id('object')

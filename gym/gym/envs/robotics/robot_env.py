@@ -9,11 +9,11 @@ from gym import error, spaces
 from gym.utils import seeding
 from torchvision.utils import save_image
 
-from vae.import_vae import vae_fetch_push
+from vae.import_vae import vae_fetch_push, vae_fetch_slide
 from vae.import_vae import vae_fetch_pick_0
-from vae.import_vae import vae_fetch_pick_1
+# from vae.import_vae import vae_fetch_pick_1
 from vae.import_vae import vae_fetch_reach
-from vae.import_vae import vae_fetch_slide
+# from vae.import_vae import vae_fetch_slide
 
 from vae.import_vae import vae_egg
 from vae.import_vae import vae_block
@@ -47,16 +47,16 @@ class RobotEnv(gym.GoalEnv):
             'video.frames_per_second': int(np.round(1.0 / self.dt))
         }
         # Vae Model assignment
-        self.fetch_push_vae = vae_fetch_push
-        self.fetch_pick_vae_0 = vae_fetch_pick_0
-        self.fetch_pick_vae_1 = vae_fetch_pick_1
-        self.fetch_slide_vae = vae_fetch_slide
-        self.fetch_reach = vae_fetch_reach
+        # self.fetch_push_vae = vae_fetch_push
+        # self.fetch_pick_vae_0 = vae_fetch_pick_0
+        # self.fetch_pick_vae_1 = vae_fetch_pick_1
+        # self.fetch_slide_vae = vae_fetch_slide
+        # self.fetch_reach = vae_fetch_reach
 
-        self.hand_vae_egg = vae_egg
-        self.hand_vae_block = vae_block
-        self.hand_vae_pen = vae_pen
-        self.hand_vae_reach = vae_hand_reach
+        # self.hand_vae_egg = vae_egg
+        # self.hand_vae_block = vae_block
+        # self.hand_vae_pen = vae_pen
+        # self.hand_vae_reach = vae_hand_reach
 
         self.seed()
         self._env_setup(initial_qpos=initial_qpos)
@@ -94,8 +94,8 @@ class RobotEnv(gym.GoalEnv):
         }
         reward = self.compute_reward(obs['achieved_goal'], self.goal, info)
         # Debug: Check if VAE encodes correctly
-        # ach1 = torch.from_numpy(obs['achieved_goal'][3:]).float().to('cuda')
-        # save_image(self.fetch_pick_vae_1.decode(ach1*9.1).view(-1, 3, 84, 84), 'ach_latent.png')
+        # ach1 = torch.from_numpy(obs['achieved_goal']).float().to('cuda')
+        # save_image(vae_fetch_slide.decode(ach1).view(-1, 3, 84, 84), 'ach_latent.png')
         return obs, reward, done, info
 
     def reset(self):
@@ -112,11 +112,11 @@ class RobotEnv(gym.GoalEnv):
         obs = self._get_obs()
 
         # Generate state
-
-
-        train_data_0 = np.empty([1280*9, 84, 84, 3])
+        '''
+        size = 100
+        train_data_0 = np.empty([size, 84, 84, 3])
         # train_data_1 = np.empty([1280, 84, 84, 3])
-        for i in range(1280*9):
+        for i in range(size):
             self._generate_state()
             img_0 = self.render(width=84, height=84, cam_name='cam_0')
             # img_1 = self.render(width=84, height=84, cam_name='cam_1')
@@ -128,12 +128,11 @@ class RobotEnv(gym.GoalEnv):
             # train_data_1[i] = img_1
             if i % 1000 == 0:
                 print(i)
-        np.save('data/Fetch_Env/slide_goal_set.npy', train_data_0)
+        np.save('data/Fetch_Env/Idk.npy', train_data_0)
         # np.save('data/Fetch_Env/vae_goal_pick_1', train_data_1)
         print('Finished')
         sys.exit()
-
-
+        '''
         return obs
 
     def close(self):

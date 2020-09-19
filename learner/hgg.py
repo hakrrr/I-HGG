@@ -68,7 +68,7 @@ class MatchSampler:
 		# 1.7953 Normal Hand Pen # ? Image-based Hand Pen
 		# 0.46 Normal Fetch Push # 5.796451 / 3.06 Image-based Fetch Push
 		# 0.25 Normal Fetch Reach # 5.263001 Image-based Fetch Reach
-		# 0.648 Normal Fetch Slide # ? Image-based Fetch Slide
+		# 0.648 Normal Fetch Slide # 2.3 Image-based Fetch Slide
 		# 0.616 Normal Fetch Pick # 2.1 Image-based Fetch Pick
 
 		self.max_dis = 0
