@@ -20,7 +20,7 @@ class Player:
         self.env_test = make_env(args)
         self.info = []
         self.test_rollouts = 10
-        self.timesteps = 100
+        self.timesteps = 25
 
         # get current policy from path (restore tf session + graph)
         self.play_dir = args.play_path
@@ -48,9 +48,11 @@ class Player:
             # Get Goal Image & resize
             goal_img = Image.open('videos/goal/goal.png')
             goal_img = goal_img.resize((512, 512))
-            goal_img.putalpha(70)
+            goal_img.putalpha(0)
 
             for timestep in range(self.timesteps):
+                body_id = env.sim.model.body_name2id('robot0:thbase')
+                x = env.sim.data.body_xpos[body_id]
                 actions = self.my_step_batch(obs)
                 obs, infos = [], []
                 ob, _, _, info = env.step(actions[0])
@@ -64,8 +66,9 @@ class Player:
                 bg.putalpha(288)
                 bg = Image.alpha_composite(bg, goal_img)
                 bg.save(path)
-
-                # Image.fromarray(rgb_array).show()
+                rgb_array = np.rot90(rgb_array)
+                rgb_array = np.rot90(rgb_array)
+                Image.fromarray(rgb_array).show()
                 # time.sleep(.3)
                 # for proc in psutil.process_iter():
                 #    if proc.name() == "display":
@@ -80,7 +83,7 @@ class Player:
             height, width, layers = img.shape
             size = (width, height)
             img_array.append(img)
-        out = cv2.VideoWriter('videos/fetch_slide.avi', cv2.VideoWriter_fourcc(*'DIVX'), 4, size)
+        out = cv2.VideoWriter('videos/foo.avi', cv2.VideoWriter_fourcc(*'DIVX'), 4, size)
         for i in range(len(img_array)):
             out.write(img_array[i])
         out.release()

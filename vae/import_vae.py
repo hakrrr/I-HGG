@@ -37,14 +37,14 @@ goal_set_fetch_pick_0 = np.load('data/Fetch_Env/pick_goal_set.npy')
 goal_set_egg = np.load('data/Hand_Env/egg_goal_set.npy')
 goal_set_block = np.load('data/Hand_Env/block_goal_set.npy')
 goal_set_pen = np.load('data/Hand_Env/pen_goal_set.npy')
-goal_set_reach = np.load('data/Hand_Env/reach_goal_set_500.npy')
+goal_set_reach = np.load('data/Hand_Env/reach_goal_set.npy')
 
 
 # Setup new goalset
-#old_training_data_0 = np.load('data/Fetch_Env/pick_goal_set.npy')
+#old_training_data_0 = np.load('data/Hand_Env/vae_train_data_reach.npy')
 #old_training_data_1 = np.load('data/Fetch_Env/vae_train_data_pick_1.npy')
 #index = np.random.choice(old_training_data_0.shape[0], 20, replace=False)
 #goal_set_0 = old_training_data_0[index]
 #goal_set_1 = old_training_data_1[index]
-#np.save('data/Fetch_Env/pick_goal_set_000.npy', goal_set_0)
+#np.save('data/Hand_Env/reach_goal_set.npy', goal_set_0)
 #np.save('data/Fetch_Env/pick_goal_set_1.npy', goal_set_1)

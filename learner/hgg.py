@@ -1,4 +1,6 @@
 import copy
+import sys
+
 import numpy as np
 from envs import make_env
 from envs.utils import goal_distance
@@ -64,7 +66,7 @@ class MatchSampler:
 		# estimating diameter
 		# 1.6 Normal Hand Block # ? Image-based Hand Block
 		# 1.843 Normal Hand Egg # 0.405 Image-based Hand Egg
-		# 0.119 Normal Hand Reach # 8.23924 Image-based Hand Reach
+		# 0.119 Normal Hand Reach # 8.03 Image-based Hand Reach
 		# 1.7953 Normal Hand Pen # ? Image-based Hand Pen
 		# 0.46 Normal Fetch Push # 5.796451 / 3.06 Image-based Fetch Push
 		# 0.25 Normal Fetch Reach # 5.263001 Image-based Fetch Reach
@@ -205,21 +207,24 @@ class HGGLearner:
 		self.learn_calls = 0
 
 		self.count = 0
+		self.train_data =np.empty([1280 * 9, 84, 84, 3])
 
+	# For hand environment
 	def generateTrainData(self, timestep, i):
-
-		if timestep % 5 == 0 and self.count < (1280 * 5):
-			rgb_array = np.array(self.env_List[i].render(mode='rgb_array', width=img_size, height=img_size))
+		if timestep % 5 == 0 and self.count < (1280 * 9):
+			rgb_array = np.array(self.env_List[i].render(mode='rgb_array', width=img_size, height=img_size, cam_name='cam_0'))
 			# Image.fromarray(rgb_array).show()
 			self.train_data[self.count] = rgb_array
 			self.count += 1
+			if self.count % 1000 == 0:
+				print('Count: ', self.count)
 
-		if self.count % 1000 == 0:
-			print('Count: ', self.count)
-		if self.count == 1280 * 5:
-			np.save('data/FetchPush/vae_train_data_push', self.train_data)
-			print('Finished')
+		if self.count == 1280 * 9:
+			np.random.shuffle(self.train_data)
+			np.save('data/Hand_Env/vae_train_data_reach', self.train_data)
+			print('Finished!')
 			self.count += 1
+		sys.exit
 
 	def learn(self, args, env, env_test, agent, buffer, write_goals=0):
 		# Actual learning cycle takes place here!

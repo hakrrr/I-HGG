@@ -39,5 +39,5 @@ class HandEnv(robot_env.RobotEnv):
         self.sim.data.ctrl[:] = actuation_center + action * actuation_range
         self.sim.data.ctrl[:] = np.clip(self.sim.data.ctrl, ctrlrange[:, 0], ctrlrange[:, 1])
 
-    def render(self, mode='human', width=500, height=500):
-        return super(HandEnv, self).render(mode, width, height)
+    def render(self, mode='human', width=500, height=500, cam_name='cam_0'):
+        return super(HandEnv, self).render(mode, width, height, cam_name)

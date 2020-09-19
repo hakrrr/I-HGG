@@ -14,7 +14,7 @@ from vae.import_vae import vae_fetch_slide
 # edit envs/fetch/interval
 # edit fetch_env: sample_goal
 # edit fetch_env: get_obs
-# edit here: sample_goal !
+# edit here: sample_goal
 # edit here: dist_threshold (optional)
 # edit test.py: test_acc (permanent)
 
@@ -33,22 +33,22 @@ class FetchSlideEnv(fetch_env.FetchEnv, utils.EzPickle):
         fetch_env.FetchEnv.__init__(
             self, MODEL_XML_PATH, has_object=True, block_gripper=True, n_substeps=20,
             gripper_extra_height=-0.02, target_in_the_air=False, target_offset=np.array([0.4, 0.0, 0.0]),
-            obj_range=0.1, target_range=0.3, distance_threshold=0.05,
+            obj_range=0.1, target_range=0.3, distance_threshold=0.025,
             initial_qpos=initial_qpos, reward_type=reward_type)
         utils.EzPickle.__init__(self)
 
     def _sample_goal(self):
         # Sample randomly from goalset
-        index = np.random.randint(10)
+        index = np.random.randint(10) + 10
         goal_0 = goal_set_fetch_slide[index]
         goal_0 = vae_fetch_slide.format(goal_0)
-        save_image(goal_0.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
+        # save_image(goal_0.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
         x_0, y_0 = vae_fetch_slide.encode(goal_0)
         goal_0 = vae_fetch_slide.reparameterize(x_0, y_0)
         goal_0 = goal_0.detach().cpu().numpy()
         goal = np.squeeze(goal_0)
-        ach1 = torch.from_numpy(goal_0).float().to('cuda')
-        save_image(vae_fetch_slide.decode(ach1).view(-1, 3, 84, 84), 'ach_latent.png')
+        # ach1 = torch.from_numpy(goal_0).float().to('cuda')
+        # save_image(vae_fetch_slide.decode(ach1).view(-1, 3, 84, 84), 'ach_latent.png')
 
         return goal.copy()
 
@@ -59,7 +59,7 @@ class FetchSlideEnv(fetch_env.FetchEnv, utils.EzPickle):
         obs_0 = vae_fetch_slide.reparameterize(x_0, y_0)
         obs_0 = obs_0.detach().cpu().numpy()
         obs = np.squeeze(obs_0)
-        save_image(tensor_0.cpu().view(-1, 3, 84, 84), 'fetch_slide_0.png')
+        # save_image(tensor_0.cpu().view(-1, 3, 84, 84), 'fetch_slide_0.png')
         return obs
 
     def _generate_state(self):
@@ -82,7 +82,6 @@ class FetchSlideEnv(fetch_env.FetchEnv, utils.EzPickle):
         if pos[0] < .94 or pos[0] > 1.45 or pos[1] < 0.4 or pos[1] > 2 or pos[2] < 0.4 or pos[2] > .7:
             self._generate_state()
         # Image.fromarray(np.array(self.render(mode='rgb_array', width=300, height=300, cam_name="cam_0"))).show()
-
         # latent = self._get_image()
 
         self._step_callback()

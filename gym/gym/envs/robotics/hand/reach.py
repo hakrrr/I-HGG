@@ -4,7 +4,9 @@ import numpy as np
 from gym import utils
 from gym.envs.robotics import hand_env
 from gym.envs.robotics.utils import robot_get_obs
+
 from vae.import_vae import goal_set_reach
+from vae.import_vae import vae_hand_reach
 from torchvision.utils import save_image
 from PIL import Image
 
@@ -56,6 +58,13 @@ def goal_distance(goal_a, goal_b):
     return np.linalg.norm(goal_a - goal_b, axis=-1)
 
 
+# Change to normal hgg
+# edit envs/hand/interval
+# edit here: _get_achieved_goal
+# edit here: sample_goal
+# edit here: dist_threshold (optional)
+# edit here: is_success (optional)
+# edit test.py: test_acc
 class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
     def __init__(
         self, distance_threshold=0.02, n_substeps=20, relative_control=False,
@@ -71,22 +80,18 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
             relative_control=relative_control)
 
     def _get_achieved_goal(self):
-        #return self._get_image('ach_hand_reach.png')
-        goal = [self.sim.data.get_site_xpos(name) for name in FINGERTIP_SITE_NAMES]
-        return np.array(goal).flatten()
+        return self._get_image()
+        # goal = [self.sim.data.get_site_xpos(name) for name in FINGERTIP_SITE_NAMES]
+        # return np.array(goal).flatten()
 
-    def _get_image(self, img_name='default'):
-        local_vae = self.hand_vae_reach
-        rgb_array = np.array(self.render(mode='rgb_array', width=84, height=84))
-        #rgb_array_fig = np.array(self.render(mode='rgb_array', width=256, height=256))
-        #im = Image.fromarray(rgb_array_fig)
-        #im.save('figure_1a.png')
-        tensor = local_vae.format(rgb_array)
-        x, y = local_vae.encode(tensor)
-        obs = local_vae.reparameterize(x, y)
+    def _get_image(self):
+        rgb_array = np.array(self.render(mode='rgb_array', width=84, height=84, cam_name='cam_0'))
+        tensor = vae_hand_reach.format(rgb_array)
+        x, y = vae_hand_reach.encode(tensor)
+        obs = vae_hand_reach.reparameterize(x, y)
         obs = obs.detach().cpu().numpy()
         obs = np.squeeze(obs)
-        save_image(tensor.cpu().view(-1, 3, 84, 84), img_name)
+        save_image(tensor.cpu().view(-1, 3, 84, 84), 'ach_hand_reach.png')
         return obs
 
     def compute_reward(self, achieved_goal, goal, info):
@@ -114,7 +119,7 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
             'desired_goal': self.goal.copy(),
         }
 
-    def _sample_goal(self):
+    def _sample_goal_old(self):
         thumb_name = 'robot0:S_thtip'
         finger_names = [name for name in FINGERTIP_SITE_NAMES if name != thumb_name]
         finger_name = self.np_random.choice(finger_names)
@@ -141,12 +146,12 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
             goal = self.initial_goal.copy()
         return goal.flatten()
 
-    def _sample_goal_new(self):
-        goal = goal_set_reach[np.random.randint(2)+3]  # np.random.randint(3)
-        goal = self.hand_vae_reach.format(goal)
-        # save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
-        x, y = self.hand_vae_reach.encode(goal)
-        goal = self.hand_vae_reach.reparameterize(x, y)
+    def _sample_goal(self):
+        goal = goal_set_reach[np.random.randint(10)]  # np.random.randint(3)
+        goal = vae_hand_reach.format(goal)
+        save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
+        x, y = vae_hand_reach.encode(goal)
+        goal = vae_hand_reach.reparameterize(x, y)
         goal = goal.detach().cpu().numpy()
         goal = np.squeeze(goal)
         return goal.copy()
@@ -171,13 +176,3 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
             site_id = self.sim.model.site_name2id(site_name)
             self.sim.model.site_pos[site_id] = achieved_goal[finger_idx] - sites_offset[site_id]
         self.sim.forward()
-
-    def _viewer_setup(self):
-        body_id = self.sim.model.body_name2id('robot0:lfmetacarpal')
-        lookat = self.sim.data.body_xpos[body_id]
-        for idx, value in enumerate(lookat):
-            self.viewer.cam.lookat[idx] = value
-        self.viewer.cam.distance = .39
-        self.viewer.cam.azimuth = 75
-        self.viewer.cam.elevation = -20.
-        self.ok = True

@@ -29,8 +29,8 @@ class VAE(nn.Module):
     def reparameterize(self, mu, logvar):
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
-        return (mu + eps * std) * 0.0144
-        #return mu
+        # return (mu + eps * std) * 0.0144
+        return mu * 0.0144
 
     # maybe z * 11
     def decode(self, z):
@@ -52,6 +52,7 @@ class VAE(nn.Module):
 
 # Reconstruction + KL divergence losses summed over all elements and batch
 def loss_function(recon_x, x, mu, logvar):
+    Beta = 1.5
     BCE = F.binary_cross_entropy(recon_x, x.reshape(-1, img_size * img_size * 3), reduction='sum')
 
     # see Appendix B from VAE paper:
@@ -62,14 +63,14 @@ def loss_function(recon_x, x, mu, logvar):
     # Try to adjust
     KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
 
-    return BCE + KLD
+    return BCE + (Beta * KLD)
 
 
 # torch.Size([128, 1, img_size, img_size])
 def train(epoch, model, optimizer, device, log_interval, batch_size):
     model.train()
     train_loss = 0
-    data_set = np.load('../../data/HandManipulate/vae_train_data_reach.npy')
+    data_set = np.load('../data/Hand_Env/vae_train_data_reach.npy')
     data_size = len(data_set)
     data_set = np.split(data_set, data_size / batch_size)
 
@@ -158,5 +159,5 @@ def load_Vae(path, no_cuda=False, seed=1):
 if __name__ == '__main__':
     # Train VAE
     print('Train VAE...')
-    train_Vae(batch_size=128, epochs=50, load=False)
+    train_Vae(batch_size=128, epochs=200, load=False)
     print('Successfully trained VAE')

@@ -8,6 +8,15 @@ def goal_distance(goal_a, goal_b):
     assert goal_a.shape == goal_b.shape
     return np.linalg.norm(goal_a - goal_b, axis=-1)
 
+# Change to normal hgg
+# edit envs/fetch/interval
+# edit fetch_env: sample_goal
+# edit fetch_env: get_obs
+# edit here: sample_goal !
+# edit here: dist_threshold (optional)
+# edit test.py: test_acc (permanent)
+# edit robot_env: render (between hand and fetch env)
+
 
 class FetchEnv(robot_env.RobotEnv):
     """Superclass for all Fetch environments.
@@ -210,7 +219,7 @@ class FetchEnv(robot_env.RobotEnv):
         if self.has_object:
             self.height_offset = self.sim.data.get_site_xpos('object0')[2]
 
-    def render(self, mode='human', width=500, height=500, cam_name="cam_1"):
+    def render(self, mode='human', width=500, height=500, cam_name='cam_0'):
         return super(FetchEnv, self).render(mode, width, height, cam_name)
 
     def _generate_state_old(self):

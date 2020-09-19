@@ -9,16 +9,16 @@ from gym import error, spaces
 from gym.utils import seeding
 from torchvision.utils import save_image
 
-from vae.import_vae import vae_fetch_push, vae_fetch_slide
-from vae.import_vae import vae_fetch_pick_0
+# from vae.import_vae import vae_fetch_push, vae_fetch_slide
+# from vae.import_vae import vae_fetch_pick_0
 # from vae.import_vae import vae_fetch_pick_1
-from vae.import_vae import vae_fetch_reach
+# from vae.import_vae import vae_fetch_reach
 # from vae.import_vae import vae_fetch_slide
 
-from vae.import_vae import vae_egg
-from vae.import_vae import vae_block
-from vae.import_vae import vae_pen
-from vae.import_vae import vae_hand_reach
+# from vae.import_vae import vae_egg
+# from vae.import_vae import vae_block
+# from vae.import_vae import vae_pen
+# from vae.import_vae import vae_hand_reach
 
 try:
     import mujoco_py
@@ -39,8 +39,8 @@ class RobotEnv(gym.GoalEnv):
 
         model = mujoco_py.load_model_from_path(fullpath)
         self.sim = mujoco_py.MjSim(model, nsubsteps=n_substeps)
-        self.viewer = None
-        self._viewers = {}
+        # self.viewer = None
+        # self._viewers = {}
 
         self.metadata = {
             'render.modes': ['human', 'rgb_array'],

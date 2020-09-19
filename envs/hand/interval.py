@@ -12,7 +12,7 @@ class IntervalGoalEnv(FixedObjectGoalEnv):
 	def __init__(self, args):
 		FixedObjectGoalEnv.__init__(self, args)
 
-	def generate_goal(self):
+	def generate_goal_old(self):
 		# Select a goal for the object position.
 		target_pos = self.sim.data.get_joint_qpos('object:joint')[:3]
 
@@ -29,7 +29,6 @@ class IntervalGoalEnv(FixedObjectGoalEnv):
 		return goal.copy()
 
 	def generate_goal_new(self):
-		print('interval')
 		#goal = goal_set[np.random.randint(5)]
 		goal = goal_set_egg[19]
 		goal = vae_egg.format(goal)
