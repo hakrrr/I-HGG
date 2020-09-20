@@ -46,9 +46,9 @@ class Player:
         for i in range(self.test_rollouts):
             obs.append(goal_based_process(env.reset()))
             # Get Goal Image & resize
-            goal_img = Image.open('videos/goal/goal.png')
+            goal_img = Image.open('goal.png')
             goal_img = goal_img.resize((512, 512))
-            goal_img.putalpha(0)
+            goal_img.putalpha(70)
 
             for timestep in range(self.timesteps):
                 body_id = env.sim.model.body_name2id('robot0:thbase')
@@ -59,6 +59,8 @@ class Player:
                 obs.append(goal_based_process(ob))
                 infos.append(info)
                 rgb_array = np.array(env.render(mode='rgb_array', width=512, height=512, cam_name="cam_0"))
+                rgb_array = np.rot90(rgb_array)
+                rgb_array = np.rot90(rgb_array)
                 path = 'videos/frames/frame_' + str(i * self.timesteps + timestep) + '.png'
 
                 # Overlay Images
@@ -66,13 +68,7 @@ class Player:
                 bg.putalpha(288)
                 bg = Image.alpha_composite(bg, goal_img)
                 bg.save(path)
-                rgb_array = np.rot90(rgb_array)
-                rgb_array = np.rot90(rgb_array)
-                Image.fromarray(rgb_array).show()
-                # time.sleep(.3)
-                # for proc in psutil.process_iter():
-                #    if proc.name() == "display":
-                #        proc.kill()
+                # Image.fromarray(rgb_array).show()
 
     def make_video(self, path_to_folder, ext_end):
         image_files = [f for f in os.listdir(path_to_folder) if f.endswith(ext_end)]

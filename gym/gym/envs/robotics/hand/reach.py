@@ -149,7 +149,7 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
     def _sample_goal(self):
         goal = goal_set_reach[np.random.randint(10)]  # np.random.randint(3)
         goal = vae_hand_reach.format(goal)
-        save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
+        save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'goal.png')
         x, y = vae_hand_reach.encode(goal)
         goal = vae_hand_reach.reparameterize(x, y)
         goal = goal.detach().cpu().numpy()
