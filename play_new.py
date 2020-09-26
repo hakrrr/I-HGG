@@ -19,7 +19,7 @@ class Player:
         self.args.timesteps = self.env.env.env.spec.max_episode_steps
         self.env_test = make_env(args)
         self.info = []
-        self.test_rollouts = 10
+        self.test_rollouts = 15
         self.timesteps = 25
 
         # get current policy from path (restore tf session + graph)
@@ -48,11 +48,12 @@ class Player:
             # Get Goal Image & resize
             goal_img = Image.open('goal.png')
             goal_img = goal_img.resize((512, 512))
+            goal_img = goal_img.rotate(180)
             goal_img.putalpha(70)
 
             for timestep in range(self.timesteps):
-                body_id = env.sim.model.body_name2id('robot0:thbase')
-                x = env.sim.data.body_xpos[body_id]
+                #body_id = env.sim.model.body_name2id('robot0:thbase')
+                #x = env.sim.data.body_xpos[body_id]
                 actions = self.my_step_batch(obs)
                 obs, infos = [], []
                 ob, _, _, info = env.step(actions[0])

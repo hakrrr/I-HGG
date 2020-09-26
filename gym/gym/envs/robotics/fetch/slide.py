@@ -15,7 +15,7 @@ from vae.import_vae import vae_fetch_slide
 # edit fetch_env: sample_goal
 # edit fetch_env: get_obs
 # edit here: sample_goal
-# edit here: dist_threshold (optional)
+# edit here: dist_threshold (original: 0.05)
 # edit test.py: test_acc (permanent)
 
 # Ensure we get the path separator correct on windows
@@ -33,7 +33,7 @@ class FetchSlideEnv(fetch_env.FetchEnv, utils.EzPickle):
         fetch_env.FetchEnv.__init__(
             self, MODEL_XML_PATH, has_object=True, block_gripper=True, n_substeps=20,
             gripper_extra_height=-0.02, target_in_the_air=False, target_offset=np.array([0.4, 0.0, 0.0]),
-            obj_range=0.1, target_range=0.3, distance_threshold=0.025,
+            obj_range=0.1, target_range=0.3, distance_threshold=0.1,
             initial_qpos=initial_qpos, reward_type=reward_type)
         utils.EzPickle.__init__(self)
 

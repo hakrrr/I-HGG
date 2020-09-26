@@ -30,11 +30,11 @@ class VAE(nn.Module):
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
         # return (mu + eps * std) * 0.079
-        return mu * 0.2817
+        return mu * 0.2219
 
     # maybe z * 11
     def decode(self, z):
-        h3 = F.relu(self.fc3(z / 0.2817))
+        h3 = F.relu(self.fc3(z / 0.2219))
         return torch.sigmoid(self.fc4(h3))
 
     def forward(self, x):

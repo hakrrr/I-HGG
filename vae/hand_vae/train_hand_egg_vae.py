@@ -29,12 +29,12 @@ class VAE(nn.Module):
     def reparameterize(self, mu, logvar):
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
-        return (mu + eps * std) * 0.36
-        #return mu
+        #return (mu + eps * std)
+        return mu * 0.3237
 
     # maybe z * 11
     def decode(self, z):
-        h3 = F.relu(self.fc3(z / 0.36))
+        h3 = F.relu(self.fc3(z / 0.3237))
         return torch.sigmoid(self.fc4(h3))
 
     def forward(self, x):
@@ -52,6 +52,7 @@ class VAE(nn.Module):
 
 # Reconstruction + KL divergence losses summed over all elements and batch
 def loss_function(recon_x, x, mu, logvar):
+    Beta = 1.5
     BCE = F.binary_cross_entropy(recon_x, x.reshape(-1, img_size * img_size * 3), reduction='sum')
 
     # see Appendix B from VAE paper:
@@ -62,7 +63,7 @@ def loss_function(recon_x, x, mu, logvar):
     # Try to adjust
     KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
 
-    return BCE + KLD
+    return BCE + (Beta * KLD)
 
 
 # torch.Size([128, 1, img_size, img_size])
@@ -158,5 +159,5 @@ def load_Vae(path, no_cuda=False, seed=1):
 if __name__ == '__main__':
     # Train VAE
     print('Train VAE...')
-    train_Vae(batch_size=128, epochs=100, load=True)
+    train_Vae(batch_size=128, epochs=1, load=True)
     print('Successfully trained VAE')
