@@ -16,8 +16,6 @@ from vae.import_vae import vae_fetch_slide
 # edit fetch_env: get_obs
 # edit here: sample_goal
 # edit here: dist_threshold (original: 0.05)
-# edit test.py: test_acc (permanent)
-
 # Ensure we get the path separator correct on windows
 MODEL_XML_PATH = os.path.join('fetch', 'slide.xml')
 
@@ -37,7 +35,7 @@ class FetchSlideEnv(fetch_env.FetchEnv, utils.EzPickle):
             initial_qpos=initial_qpos, reward_type=reward_type)
         utils.EzPickle.__init__(self)
 
-    def _sample_goal(self):
+    def _sample_goal_new(self):
         # Sample randomly from goalset
         index = np.random.randint(10) + 10
         goal_0 = goal_set_fetch_slide[index]

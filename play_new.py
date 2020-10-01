@@ -60,8 +60,8 @@ class Player:
                 obs.append(goal_based_process(ob))
                 infos.append(info)
                 rgb_array = np.array(env.render(mode='rgb_array', width=512, height=512, cam_name="cam_0"))
-                rgb_array = np.rot90(rgb_array)
-                rgb_array = np.rot90(rgb_array)
+                # rgb_array = np.rot90(rgb_array)
+                # rgb_array = np.rot90(rgb_array)
                 path = 'videos/frames/frame_' + str(i * self.timesteps + timestep) + '.png'
 
                 # Overlay Images
@@ -69,7 +69,7 @@ class Player:
                 bg.putalpha(288)
                 bg = Image.alpha_composite(bg, goal_img)
                 bg.save(path)
-                # Image.fromarray(rgb_array).show()
+                Image.fromarray(rgb_array).show()
 
     def make_video(self, path_to_folder, ext_end):
         image_files = [f for f in os.listdir(path_to_folder) if f.endswith(ext_end)]

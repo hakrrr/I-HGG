@@ -1,5 +1,5 @@
 import numpy as np
-import vae.fetch_vae.vae_fetch_push_vae as VAE_PUSH
+import vae.fetch_vae.vae_fetch_push as VAE_PUSH
 import vae.fetch_vae.vae_fetch_reach as VAE_FETCH_REACH
 import vae.fetch_vae.vae_fetch_slide as VAE_FETCH_SLIDE
 import vae.fetch_vae.vae_fetch_pick_0 as VAE_FETCH_PICK_0

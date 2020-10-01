@@ -1,12 +1,19 @@
 import os
+import random
+
 from gym import utils
 from gym.envs.robotics import fetch_env
 from vae.import_vae import goal_set_fetch_push
+from vae.import_vae import vae_fetch_push
 from torchvision.utils import save_image
 from PIL import Image
 import numpy as np
 
-
+# edit envs/fetch/interval
+# edit fetch_env: sample_goal
+# edit fetch_env: get_obs
+# edit here: sample_goal
+# edit here: dist_threshold (0.05 original)
 # Ensure we get the path separator correct on windows
 MODEL_XML_PATH = os.path.join('fetch', 'push.xml')
 
@@ -26,18 +33,18 @@ class FetchPushEnv(fetch_env.FetchEnv, utils.EzPickle):
             initial_qpos=initial_qpos, reward_type=reward_type)
         utils.EzPickle.__init__(self)
 
-    def _sample_goal(self):
+    def _sample_goal_new(self):
         goal = goal_set_fetch_push[np.random.randint(20)]
-        goal = self.fetch_push_vae.format(goal)
+        goal = vae_fetch_push.format(goal)
         save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
-        x, y = self.fetch_push_vae.encode(goal)
-        goal = self.fetch_push_vae.reparameterize(x, y)
+        x, y = vae_fetch_push.encode(goal)
+        goal = vae_fetch_push.reparameterize(x, y)
         goal = goal.detach().cpu().numpy()
         goal = np.squeeze(goal)
         return goal.copy()
 
     def _get_image(self, img_name='default'):
-        local_vae = self.fetch_push_vae
+        local_vae = vae_fetch_push
         np.array(self.render(mode='rgb_array',
                              width=84, height=84))
         rgb_array = np.array(self.render(mode='rgb_array',
@@ -52,3 +59,24 @@ class FetchPushEnv(fetch_env.FetchEnv, utils.EzPickle):
         obs = np.squeeze(obs)
         # save_image(tensor.cpu().view(-1, 3, 84, 84), img_name)
         return obs
+
+    def _generate_state(self):
+        if self.visible:
+            self._set_arm_visible(False)
+            self.visible = False
+        goal = [random.uniform(1.15, 1.45), random.uniform(0.6, 1.0), 0.43]
+        # goal = [1.3, .7, .432]
+        object_qpos = self.sim.data.get_joint_qpos('object0:joint')
+        object_qpos[:3] = goal[:3]
+        object_qpos[3:] = [1, 0, 0, 0]
+        self.sim.data.set_joint_qpos('object0:joint', object_qpos)
+        for _ in range(15):
+            self.sim.step()
+
+        # Check if inside checkbox:
+        pos = self.sim.data.get_joint_qpos('object0:joint').copy()
+        if pos[0] < 1.15 or pos[0] > 1.45 or pos[1] < 0.6 or pos[1] > 1.0 or pos[2] < 0.42 or pos[2] > .7:
+            self._generate_state()
+        # Image.fromarray(np.array(self.render(mode='rgb_array', width=300, height=300, cam_name="cam_0"))).show()
+
+        # latent = self._get_image()

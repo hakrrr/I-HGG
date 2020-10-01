@@ -111,9 +111,9 @@ class RobotEnv(gym.GoalEnv):
         self.goal = self._sample_goal().copy()
         obs = self._get_obs()
 
-        # Generate state
+        # Generate state (for fetch-environments)
         '''
-        size = 100
+        size = 1280 * 9
         train_data_0 = np.empty([size, 84, 84, 3])
         # train_data_1 = np.empty([1280, 84, 84, 3])
         for i in range(size):
@@ -128,7 +128,7 @@ class RobotEnv(gym.GoalEnv):
             # train_data_1[i] = img_1
             if i % 1000 == 0:
                 print(i)
-        np.save('data/Fetch_Env/Idk.npy', train_data_0)
+        np.save('data/Fetch_Env/vae_train_data_reach.npy', train_data_0)
         # np.save('data/Fetch_Env/vae_goal_pick_1', train_data_1)
         print('Finished')
         sys.exit()

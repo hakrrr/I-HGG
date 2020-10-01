@@ -1,5 +1,7 @@
 import os
+import random
 
+from PIL import Image
 from torchvision.utils import save_image
 
 from gym import utils
@@ -7,7 +9,12 @@ from gym.envs.robotics import fetch_env
 import numpy as np
 from vae.import_vae import goal_set_fetch_reach
 
-
+# edit envs/fetch/interval
+# edit fetch_env: sample_goal
+# edit fetch_env: get_obs
+# edit here: sample_goal !
+# edit here: dist_threshold (optional)
+# edit robot_env: render (between hand and fetch env)
 # Ensure we get the path separator correct on windows
 MODEL_XML_PATH = os.path.join('fetch', 'reach.xml')
 
@@ -26,7 +33,7 @@ class FetchReachEnv(fetch_env.FetchEnv, utils.EzPickle):
             initial_qpos=initial_qpos, reward_type=reward_type)
         utils.EzPickle.__init__(self)
 
-    def _sample_goal(self):
+    def _sample_goal_old(self):
         goal = goal_set_fetch_reach[np.random.randint(5)+10]
         goal = self.fetch_reach.format(goal)
         save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
@@ -49,3 +56,15 @@ class FetchReachEnv(fetch_env.FetchEnv, utils.EzPickle):
         obs = np.squeeze(obs)
         save_image(tensor.cpu().view(-1, 3, 84, 84), img_name)
         return obs
+
+    def _generate_state(self):
+        goal = [random.uniform(1.15, 1.45), random.uniform(0.6, 1.0), 0.43]
+        self._set_gripper(goal)
+        self.sim.forward()
+        for _ in range(15):
+            self.sim.step()
+        self._step_callback()
+
+        # Image.fromarray(np.array(self.render(mode='rgb_array', width=300, height=300, cam_name="cam_0"))).show()
+        # latent = self._get_image()
+

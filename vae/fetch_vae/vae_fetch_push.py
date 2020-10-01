@@ -9,7 +9,7 @@ from torchvision.utils import save_image
 
 
 img_size = 84
-n_path = '../../data/FetchPush/vae_model_push'
+n_path = '../../data/Fetch_Env/vae_model_push'
 
 
 class VAE(nn.Module):
@@ -70,7 +70,7 @@ def loss_function(recon_x, x, mu, logvar):
 def train(epoch, model, optimizer, device, log_interval, batch_size):
     model.train()
     train_loss = 0
-    data_set = np.load('../../data/FetchPush/push_goal_set.npy')
+    data_set = np.load('../../data/Fetch_Env/vae_train_data_push.npy')
     data_size = len(data_set)
     data_set = np.split(data_set, data_size / batch_size)
 
@@ -87,9 +87,9 @@ def train(epoch, model, optimizer, device, log_interval, batch_size):
         optimizer.step()
         if batch_idx % log_interval == 0:
             save_image(data.cpu().view(-1, 3, img_size, img_size),
-                       'results/original.png')
+                       '../results/original.png')
             save_image(recon_batch.cpu().view(-1, 3, img_size, img_size),
-                       'results/recon.png')
+                       '../results/recon.png')
             #           'results/recon_' + str(epoch) + '.png')
 
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
@@ -159,5 +159,5 @@ def load_Vae(path, no_cuda=False, seed=1):
 if __name__ == '__main__':
     # Train VAE
     print('Train VAE...')
-    train_Vae(batch_size=128, epochs=100, load=True)
+    train_Vae(batch_size=128, epochs=1, load=True)
     print('Successfully trained VAE')

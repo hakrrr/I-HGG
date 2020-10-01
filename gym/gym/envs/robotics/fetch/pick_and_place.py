@@ -6,22 +6,18 @@ from gym.envs.robotics import fetch_env
 import numpy as np
 from PIL import Image
 
+from vae.import_vae import vae_fetch_pick_0
 from vae.import_vae import goal_set_fetch_pick_0
 # from vae.import_vae import goal_set_fetch_pick_1
 
-# Ensure we get the path separator correct on windows
-MODEL_XML_PATH = os.path.join('fetch', 'pick_and_place.xml')
-
-# Change to normal hgg
 # edit envs/fetch/interval
 # edit fetch_env: sample_goal
 # edit fetch_env: get_obs
-# edit here: sample_goal
-# edit here: dist_threshold
-# edit fetch_env: goal_distance
-# edit fetch_env: _is_success
-# edit fetch_env: compute_reward
-# edit test.py: test_acc
+# edit here: sample_goal !
+# edit here: dist_threshold (optional)
+# edit robot_env: render (between hand and fetch env)
+# Ensure we get the path separator correct on windows
+MODEL_XML_PATH = os.path.join('fetch', 'pick_and_place.xml')
 
 
 class FetchPickAndPlaceEnv(fetch_env.FetchEnv, utils.EzPickle):
@@ -50,19 +46,19 @@ class FetchPickAndPlaceEnv(fetch_env.FetchEnv, utils.EzPickle):
     self.viewer.cam.elevation = 90.
     '''
 
-    def _sample_goal(self):
+    def _sample_goal_new(self):
         # Sample randomly from goalset
         index = np.random.randint(100)
         goal_0 = goal_set_fetch_pick_0[index]
         #goal_1 = goal_set_fetch_pick_1[index]
-        goal_0 = self.fetch_pick_vae_0.format(goal_0)
+        goal_0 = vae_fetch_pick_0.format(goal_0)
         #goal_1 = self.fetch_pick_vae_1.format(goal_1)
         save_image(goal_0.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
         #save_image(goal_1.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal_1.png')
 
-        x_0, y_0 = self.fetch_pick_vae_0.encode(goal_0)
+        x_0, y_0 = vae_fetch_pick_0.encode(goal_0)
         #x_1, y_1 = self.fetch_pick_vae_1.encode(goal_1)
-        goal_0 = self.fetch_pick_vae_0.reparameterize(x_0, y_0)
+        goal_0 = vae_fetch_pick_0.reparameterize(x_0, y_0)
         #goal_1 = self.fetch_pick_vae_1.reparameterize(x_1, y_1)
         goal_0 = goal_0.detach().cpu().numpy()
         #goal_1 = goal_1.detach().cpu().numpy()
@@ -76,11 +72,11 @@ class FetchPickAndPlaceEnv(fetch_env.FetchEnv, utils.EzPickle):
     def _get_image(self):
         rgb_array_0 = np.array(self.render(mode='rgb_array', width=84, height=84, cam_name="cam_0"))
         #rgb_array_1 = np.array(self.render(mode='rgb_array', width=84, height=84, cam_name="cam_1"))
-        tensor_0 = self.fetch_pick_vae_0.format(rgb_array_0)
+        tensor_0 = vae_fetch_pick_0.format(rgb_array_0)
         #tensor_1 = self.fetch_pick_vae_1.format(rgb_array_1)
-        x_0, y_0 = self.fetch_pick_vae_0.encode(tensor_0)
+        x_0, y_0 = vae_fetch_pick_0.encode(tensor_0)
         #x_1, y_1 = self.fetch_pick_vae_1.encode(tensor_1)
-        obs_0 = self.fetch_pick_vae_0.reparameterize(x_0, y_0)
+        obs_0 = vae_fetch_pick_0.reparameterize(x_0, y_0)
         #obs_1 = self.fetch_pick_vae_1.reparameterize(x_1, y_1)
         obs_0 = obs_0.detach().cpu().numpy()
         #obs_1 = obs_1.detach().cpu().numpy()

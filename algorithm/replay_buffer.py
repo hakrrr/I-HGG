@@ -38,14 +38,15 @@ class Trajectory:
 
 			clip_energy = 0.5
 
-			# height = obj[:, :, 2]
-			# np.save('data/FetchPush/height.npy', height)
+			# For Fetch_Reach, Fetch_Push, Fetch_Slide, where height is the same
 			# For ep = 100
-			height_load = np.load('data/Fetch_Env/height.npy')
+			# height_load = np.load('data/Fetch_Env/height.npy')
 			# For ep = 50
-			height = height_load[:, : 51]
+			# height = height_load[:, : 51]
 			# height = height_load
 
+			# For PickAndPlace, since height matters
+			height = obj[:, :, 2]
 			height_0 = np.repeat(height[:, 0].reshape(-1, 1), height[:, 1::].shape[1], axis=1)
 			height = height[:, 1::] - height_0
 
