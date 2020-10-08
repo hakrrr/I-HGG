@@ -8,6 +8,7 @@ from gym import utils
 from gym.envs.robotics import fetch_env
 import numpy as np
 from vae.import_vae import goal_set_fetch_reach
+from vae.import_vae import vae_fetch_reach
 
 # edit envs/fetch/interval
 # edit fetch_env: sample_goal
@@ -33,28 +34,27 @@ class FetchReachEnv(fetch_env.FetchEnv, utils.EzPickle):
             initial_qpos=initial_qpos, reward_type=reward_type)
         utils.EzPickle.__init__(self)
 
-    def _sample_goal_old(self):
-        goal = goal_set_fetch_reach[np.random.randint(5)+10]
-        goal = self.fetch_reach.format(goal)
-        save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
-        x, y = self.fetch_reach.encode(goal)
-        goal = self.fetch_reach.reparameterize(x, y)
+    def _sample_goal(self):
+        goal = goal_set_fetch_reach[np.random.randint(15)]
+        goal = vae_fetch_reach.format(goal)
+        # save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
+        x, y = vae_fetch_reach.encode(goal)
+        goal = vae_fetch_reach.reparameterize(x, y)
         goal = goal.detach().cpu().numpy()
         goal = np.squeeze(goal)
         return goal.copy()
 
-    def _get_image(self, img_name='default'):
-        local_vae = self.fetch_reach
+    def _get_image(self):
         np.array(self.render(mode='rgb_array',
                              width=84, height=84))
         rgb_array = np.array(self.render(mode='rgb_array',
                                          width=84, height=84))
-        tensor = local_vae.format(rgb_array)
-        x, y = local_vae.encode(tensor)
-        obs = local_vae.reparameterize(x, y)
+        tensor = vae_fetch_reach.format(rgb_array)
+        x, y = vae_fetch_reach.encode(tensor)
+        obs = vae_fetch_reach.reparameterize(x, y)
         obs = obs.detach().cpu().numpy()
         obs = np.squeeze(obs)
-        save_image(tensor.cpu().view(-1, 3, 84, 84), img_name)
+        # save_image(tensor.cpu().view(-1, 3, 84, 84), 'ach_fetch_reach.png')
         return obs
 
     def _generate_state(self):

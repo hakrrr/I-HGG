@@ -46,7 +46,7 @@ class FetchPickAndPlaceEnv(fetch_env.FetchEnv, utils.EzPickle):
     self.viewer.cam.elevation = 90.
     '''
 
-    def _sample_goal_new(self):
+    def _sample_goal(self):
         # Sample randomly from goalset
         index = np.random.randint(100)
         goal_0 = goal_set_fetch_pick_0[index]

@@ -93,8 +93,9 @@ class VanillaGoalEnv():
 		if self.args.env=='HandReach-v0':
 			return self.env.env._get_obs()
 		else:
-			return self.rotate_obs(self.env.env._get_obs())
-			#return self.env.env._get_obs()
+			#return self.rotate_obs(self.env.env._get_obs())
+			# For I-HGG HandManipulation:
+			return self.env.env._get_obs()
 
 	def step(self, action):
 		# imaginary infinity horizon (without done signal)

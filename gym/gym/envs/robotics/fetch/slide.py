@@ -31,13 +31,13 @@ class FetchSlideEnv(fetch_env.FetchEnv, utils.EzPickle):
         fetch_env.FetchEnv.__init__(
             self, MODEL_XML_PATH, has_object=True, block_gripper=True, n_substeps=20,
             gripper_extra_height=-0.02, target_in_the_air=False, target_offset=np.array([0.4, 0.0, 0.0]),
-            obj_range=0.1, target_range=0.3, distance_threshold=0.1,
+            obj_range=0.1, target_range=0.3, distance_threshold=0.08,
             initial_qpos=initial_qpos, reward_type=reward_type)
         utils.EzPickle.__init__(self)
 
-    def _sample_goal_new(self):
+    def _sample_goal(self):
         # Sample randomly from goalset
-        index = np.random.randint(10) + 10
+        index = np.random.randint(5)
         goal_0 = goal_set_fetch_slide[index]
         goal_0 = vae_fetch_slide.format(goal_0)
         # save_image(goal_0.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')

@@ -23,10 +23,10 @@ except ImportError as e:
 # edit envs/hand/interval
 # edit here: _get_achieved_goal
 # edit here: sample_goal
-# edit here: dist_threshold (optional)
+# edit here: all_threshold (optional)
 # edit here: goal_distance
 # edit here: is_success
-# edit vanilla: step / get_obs()
+# edit vanilla:  get_obs()
 
 
 def quat_from_angle_and_axis(angle, axis):
@@ -99,16 +99,16 @@ class ManipulateEnv(hand_env.HandEnv):
             relative_control=relative_control)
 
     def _get_achieved_goal(self):
-        #if self.arm_visible:
-        #    self._set_arm_visible(False)
-        #    self.arm_visible = False
-        #return self._get_image()
+        if self.arm_visible:
+            self._set_arm_visible(False)
+            self.arm_visible = False
+        return self._get_image()
         # Object position and rotation (old)
-        object_qpos = self.sim.data.get_joint_qpos('object:joint')
-        assert object_qpos.shape == (7,)
-        return object_qpos
+        #object_qpos = self.sim.data.get_joint_qpos('object:joint')
+        #assert object_qpos.shape == (7,)
+        #return object_qpos
 
-    def _goal_distance(self, goal_a, goal_b):
+    def _goal_distance_old(self, goal_a, goal_b):
         assert goal_a.shape == goal_b.shape
         # assert goal_a.shape[-1] == 7
 
@@ -138,7 +138,7 @@ class ManipulateEnv(hand_env.HandEnv):
         assert d_pos.shape == d_rot.shape
         return d_pos, d_rot
 
-    def _goal_distance_new(self, goal_a, goal_b):
+    def _goal_distance(self, goal_a, goal_b):
         assert goal_a.shape == goal_b.shape
         dist = np.linalg.norm(goal_a - goal_b, axis=-1)
         return dist
@@ -157,14 +157,14 @@ class ManipulateEnv(hand_env.HandEnv):
 
     # RobotEnv methods
     # ----------------------------
-    def _is_success(self, achieved_goal, desired_goal):
+    def _is_success_old(self, achieved_goal, desired_goal):
         d_pos, d_rot = self._goal_distance(achieved_goal, desired_goal)
         achieved_pos = (d_pos < self.distance_threshold).astype(np.float32)
         achieved_rot = (d_rot < self.rotation_threshold).astype(np.float32)
         achieved_both = achieved_pos * achieved_rot
         return achieved_both
 
-    def _is_success_new(self, achieved_goal, desired_goal):
+    def _is_success(self, achieved_goal, desired_goal):
         distance = self._goal_distance(achieved_goal, desired_goal)
         achieved = (distance < self.all_threshold).astype(np.float32)
         return achieved
@@ -234,7 +234,7 @@ class ManipulateEnv(hand_env.HandEnv):
                 return False
         return is_on_palm()
 
-    def _sample_goal(self):
+    def _sample_goal_old(self):
         # Select a goal for the object position.
         target_pos = None
         if self.target_position == 'random':
@@ -326,7 +326,7 @@ class HandBlockEnv(ManipulateEnv, utils.EzPickle):
             target_position_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]),
             reward_type=reward_type)
 
-    def _sample_goal_new(self):
+    def _sample_goal(self):
         goal = goal_set_block[np.random.randint(5)]
         goal = vae_block.format(goal)
         save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'goal.png')
@@ -360,7 +360,7 @@ class HandEggEnv(ManipulateEnv, utils.EzPickle):
             target_position_range=np.array([(-0.04, 0.04), (-0.06, 0.02), (0.0, 0.06)]),
             reward_type=reward_type)
 
-    def _sample_goal_new(self):
+    def _sample_goal(self):
         goal = goal_set_egg[np.random.randint(5)]
         goal = vae_egg.format(goal)
         save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'goal.png')
@@ -395,7 +395,7 @@ class HandPenEnv(ManipulateEnv, utils.EzPickle):
             randomize_initial_rotation=False, reward_type=reward_type,
             ignore_z_target_rotation=True, distance_threshold=0.05)
 
-    def _sample_goal_new(self):
+    def _sample_goal(self):
         goal = goal_set_pen[np.random.randint(5)]
         goal = vae_pen.format(goal)
         save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')

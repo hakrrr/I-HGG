@@ -195,7 +195,7 @@ if __name__ == "__main__":
     plt.title(env_id)
     plt.xlabel('Iteration')
     plt.ylabel('Median Success Rate')
-    plt.legend(loc=location)
+    plt.legend(loc=4)
     plt.savefig(os.path.join(args.dir, 'fig_{}.pdf'.format(env_id)), format='pdf')
     if args.save_path:
         plt.savefig(args.save_path)

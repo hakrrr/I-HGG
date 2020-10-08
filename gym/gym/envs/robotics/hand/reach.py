@@ -76,9 +76,9 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
             relative_control=relative_control)
 
     def _get_achieved_goal(self):
-        #return self._get_image()
-        goal = [self.sim.data.get_site_xpos(name) for name in FINGERTIP_SITE_NAMES]
-        return np.array(goal).flatten()
+        return self._get_image()
+        #goal = [self.sim.data.get_site_xpos(name) for name in FINGERTIP_SITE_NAMES]
+        #return np.array(goal).flatten()
 
     def _get_image(self):
         rgb_array = np.array(self.render(mode='rgb_array', width=84, height=84, cam_name='cam_0'))
@@ -115,7 +115,7 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
             'desired_goal': self.goal.copy(),
         }
 
-    def _sample_goal(self):
+    def _sample_goal_old(self):
         thumb_name = 'robot0:S_thtip'
         finger_names = [name for name in FINGERTIP_SITE_NAMES if name != thumb_name]
         finger_name = self.np_random.choice(finger_names)
@@ -142,7 +142,7 @@ class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
             goal = self.initial_goal.copy()
         return goal.flatten()
 
-    def _sample_goal_new(self):
+    def _sample_goal(self):
         goal = goal_set_reach[np.random.randint(10)]  # np.random.randint(3)
         goal = vae_hand_reach.format(goal)
         save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'goal.png')
