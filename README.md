@@ -10,8 +10,8 @@ It is based on the implementation of G-HGG (Matthias Brucker, 2020).
 2. Python 3.5.2 (newer versions such as 3.6.8 should work as well)
 3. MuJoCo == 1.50 (see instructions on https://github.com/openai/mujoco-py)
 4. Install requirements
-5. Download the directory 'data' from [https://syncandshare.lrz.de/getlink/fiMKUN6s6mENZfDh3MQkcSR1/] and place it into the project root directory
-6. Download the directory 'figure' from [https://syncandshare.lrz.de/getlink/fiMKUN6s6mENZfDh3MQkcSR1/] and place it into the project root directory for plotting the results from the paper
+5. Download the directory 'data' from [https://syncandshare.lrz.de/getlink/fiPycjdBkzfaXTsmiTDaGcKP/I-HGG_data] and place it into the project root directory
+6. Download the directory 'figure' from [https://syncandshare.lrz.de/getlink/fiPycjdBkzfaXTsmiTDaGcKP/I-HGG_data] and place it into the project root directory for plotting the results from the paper
 ```bash
 pip install -r requirements.txt
 ```
