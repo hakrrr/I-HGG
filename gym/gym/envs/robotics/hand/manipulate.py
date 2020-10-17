@@ -23,10 +23,10 @@ except ImportError as e:
 # edit envs/hand/interval
 # edit here: _get_achieved_goal
 # edit here: sample_goal
-# edit here: all_threshold (optional)
 # edit here: goal_distance
 # edit here: is_success
-# edit vanilla:  get_obs()
+# edit here: all_threshold (optional)
+# edit vanilla: get_obs()
 
 
 def quat_from_angle_and_axis(angle, axis):
@@ -84,7 +84,7 @@ class ManipulateEnv(hand_env.HandEnv):
         self.randomize_initial_position = randomize_initial_position
         self.distance_threshold = distance_threshold
         self.rotation_threshold = rotation_threshold
-        self.all_threshold = .1  # .15 dist for hand egg
+        self.all_threshold = .2  # .15 dist for hand egg .1 for else
         self.reward_type = reward_type
         self.ignore_z_target_rotation = ignore_z_target_rotation
         self.img_size = 84
@@ -327,7 +327,8 @@ class HandBlockEnv(ManipulateEnv, utils.EzPickle):
             reward_type=reward_type)
 
     def _sample_goal(self):
-        goal = goal_set_block[np.random.randint(5)]
+        i = np.random.randint(5)
+        goal = goal_set_block[i]
         goal = vae_block.format(goal)
         save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'goal.png')
         x, y = vae_block.encode(goal)
@@ -347,7 +348,7 @@ class HandBlockEnv(ManipulateEnv, utils.EzPickle):
         obs = vae_block.reparameterize(x, y)
         obs = obs.detach().cpu().numpy()
         obs = np.squeeze(obs)
-        save_image(tensor.cpu().view(-1, 3, 84, 84), 'ach_hand_block.png')
+        #save_image(tensor.cpu().view(-1, 3, 84, 84), 'ach_hand_block.png')
         return obs
 
 

@@ -19,8 +19,8 @@ class Player:
         self.args.timesteps = self.env.env.env.spec.max_episode_steps
         self.env_test = make_env(args)
         self.info = []
-        self.test_rollouts = 15
-        self.timesteps = 25
+        self.test_rollouts = 10
+        self.timesteps = 50
 
         # get current policy from path (restore tf session + graph)
         self.play_dir = args.play_path
@@ -42,13 +42,14 @@ class Player:
         # play policy on env
         env = self.env
         acc_sum, obs = 0.0, []
-        np.random.seed(5)
+        np.random.seed(18)
         for i in range(self.test_rollouts):
             obs.append(goal_based_process(env.reset()))
             # Get Goal Image & resize
-            goal_img = Image.open('goal.png')
+            goal_img = Image.open('videos/goal/goal.png')
             goal_img = goal_img.resize((512, 512))
-            goal_img = goal_img.rotate(180)
+            #goal_img = goal_img.rotate(90)
+            #goal_img = goal_img.rotate(90)
             goal_img.putalpha(70)
 
             for timestep in range(self.timesteps):
@@ -60,16 +61,17 @@ class Player:
                 obs.append(goal_based_process(ob))
                 infos.append(info)
                 rgb_array = np.array(env.render(mode='rgb_array', width=512, height=512, cam_name="cam_0"))
-                # rgb_array = np.rot90(rgb_array)
-                # rgb_array = np.rot90(rgb_array)
+                #rgb_array = np.rot90(rgb_array)
+                #rgb_array = np.rot90(rgb_array)
                 path = 'videos/frames/frame_' + str(i * self.timesteps + timestep) + '.png'
 
                 # Overlay Images
                 bg = Image.fromarray(rgb_array)
                 bg.putalpha(288)
                 bg = Image.alpha_composite(bg, goal_img)
+                # bg = self.get_concat_h(bg, goal_img)
                 bg.save(path)
-                Image.fromarray(rgb_array).show()
+                # Image.fromarray(rgb_array).show()
 
     def make_video(self, path_to_folder, ext_end):
         image_files = [f for f in os.listdir(path_to_folder) if f.endswith(ext_end)]
@@ -84,6 +86,12 @@ class Player:
         for i in range(len(img_array)):
             out.write(img_array[i])
         out.release()
+
+    def get_concat_h(self, im1, im2):
+        dst = Image.new('RGB', (im1.width + im2.width, im1.height))
+        dst.paste(im1, (0, 0))
+        dst.paste(im2, (im1.width, 0))
+        return dst
 
 
 if __name__ == "__main__":

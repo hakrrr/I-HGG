@@ -40,7 +40,7 @@ class FetchSlideEnv(fetch_env.FetchEnv, utils.EzPickle):
         index = np.random.randint(5)
         goal_0 = goal_set_fetch_slide[index]
         goal_0 = vae_fetch_slide.format(goal_0)
-        # save_image(goal_0.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
+        save_image(goal_0.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
         x_0, y_0 = vae_fetch_slide.encode(goal_0)
         goal_0 = vae_fetch_slide.reparameterize(x_0, y_0)
         goal_0 = goal_0.detach().cpu().numpy()

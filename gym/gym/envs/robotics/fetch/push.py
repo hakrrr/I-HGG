@@ -34,7 +34,7 @@ class FetchPushEnv(fetch_env.FetchEnv, utils.EzPickle):
         utils.EzPickle.__init__(self)
 
     def _sample_goal(self):
-        goal = goal_set_fetch_push[np.random.randint(15)]
+        goal = goal_set_fetch_push[np.random.randint(7)]
         goal = vae_fetch_push.format(goal)
         save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
         x, y = vae_fetch_push.encode(goal)

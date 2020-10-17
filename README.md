@@ -11,6 +11,7 @@ It is based on the implementation of G-HGG (Matthias Brucker, 2020).
 3. MuJoCo == 1.50 (see instructions on https://github.com/openai/mujoco-py)
 4. Install requirements
 5. Download the directory 'data' from [https://syncandshare.lrz.de/getlink/fiMKUN6s6mENZfDh3MQkcSR1/] and place it into the project root directory
+6. Download the directory 'figure' from [https://syncandshare.lrz.de/getlink/fiMKUN6s6mENZfDh3MQkcSR1/] and place it into the project root directory for plotting the results from the paper
 ```bash
 pip install -r requirements.txt
 ```
@@ -25,7 +26,7 @@ New VAE models can be trained with following command:
 ```bash
 # Training a vae model for the environment
 # Note: Training data are loaded in line 72. Edit the path if you wish to train with other training data 
-python vae/train_fetch_pick.py
+python vae/fetch_vae/vae_fetch_push.py
 ```
 
 ## Agent Training
@@ -42,59 +43,21 @@ python train.py --tag 100 --learn hgg --env=FetchPush-v1
 To plot the agent's performance on multiple training runs, copy all training run directories into one directory. For example, we put all FetchPushLabyrinth runs in a directory called BA_Labyrinth, same for FetchPickObstacle (BA_Obstacle), FetchPickNoObstacle (BA_NoObstacle) and FetchPickAndThrow (BA_Throw). naming=0 is recommended as default. For our result plot commands, have a look at create_result_figures.sh. 
 
 ```bash
-python plot.py figures/BA_Labyrinth FetchPushLabyrinth-v1 --naming 0 --e_per_c 20
-```
-
-## Figures
-
-Figures and the data they are based on can be found in the directory "figures" and were generate with the following scripts:
-
-```bash
-# Result and Ablation plots (Figures are already generated in the respective subdirectories in directory "figures"):
-./create_result_figures.sh
-
-# Other plots (Figures are already generated in directory "figures"):
-python create_figures.py
+python plot.py figures/FetchPush --naming 0 --e_per_c 20
 ```
 
 ## Playing 
 
-To look at the agent solving the respective task according to his learned policy, issue the following command:
+To generate a video looking at the agent solving the respective task according to his learned policy, issue the following command:
 
 ```bash
-# Scheme: python play.py --env env_id --goal custom --play_path log_dir --play_epoch <epoch number, latest or best>
+# Scheme: python play.py --env env_id --play_path log_dir --play_epoch <epoch number, latest or best>
 
-# FetchPushLabyrinth
-# I-HGG
-python play.py --env FetchPushLabyrinth-v1 --goal custom --play_path figures/BA_Labyrinth/000-ddpg-FetchPushLabyrinth-v1-hgg-mesh-stop --play_epoch best
-# HGG
-python play.py --env FetchPushLabyrinth-v1 --goal custom --play_path figures/BA_Labyrinth/010-ddpg-FetchPushLabyrinth-v1-hgg-stop --play_epoch best
-# HER
-python play.py --env FetchPushLabyrinth-v1 --goal custom --play_path figures/BA_Labyrinth/010-ddpg-FetchPushLabyrinth-v1-normal --play_epoch best
-
-#FetchPickObstacle
-python play.py --env FetchPickObstacle-v1 --goal custom --play_path figures/BA_Obstacle/100-ddpg-FetchPickObstacle-v1-hgg-mesh-stop --play_epoch best
-python play.py --env FetchPickObstacle-v1 --goal custom --play_path figures/BA_Obstacle/112-ddpg-FetchPickObstacle-v1-hgg-stop --play_epoch best
-python play.py --env FetchPickObstacle-v1 --goal custom --play_path figures/BA_Obstacle/120-ddpg-FetchPickObstacle-v1-normal --play_epoch best
-
-#FetchPickNoObstacle
-python play.py --env FetchPickNoObstacle-v1 --goal custom --play_path figures/BA_NoObstacle/200-ddpg-FetchPickNoObstacle-v1-hgg-mesh-stop --play_epoch best
-python play.py --env FetchPickNoObstacle-v1 --goal custom --play_path figures/BA_NoObstacle/210-ddpg-FetchPickNoObstacle-v1-hgg-stop --play_epoch best
-python play.py --env FetchPickNoObstacle-v1 --goal custom --play_path figures/BA_NoObstacle/220-ddpg-FetchPickNoObstacle-v1-normal --play_epoch best
-
-#FetchPickAndThrow
-python play.py --env FetchPickAndThrow-v1 --goal custom --play_path figures/BA_Throw/300a-ddpg-FetchPickAndThrow-v1-hgg-mesh-stop --play_epoch best
-python play.py --env FetchPickAndThrow-v1 --goal custom --play_path figures/BA_Throw/310a-ddpg-FetchPickAndThrow-v1-hgg-stop --play_epoch best
-python play.py --env FetchPickAndThrow-v1 --goal custom --play_path figures/BA_Throw/320a-ddpg-FetchPickAndThrow-v1-hgg-normal --play_epoch best
+# Example
+python play_new.py --env FetchPush-v1 --play_path figures/000-ddpg-FetchPush-v1-hgg/ --play_epoch latest
 ```
 
-## Running commands from HGG paper
+## Vanilla HGG and HER
 
-Run the following commands to reproduce our main results shown in section 5.1 of the HGG paper.
-
-```bash
-python train.py --tag='HGG_fetch_push' --env=FetchPush-v1
-python train.py --tag='HGG_fetch_pick' --env=FetchPickAndPlace-v1
-python train.py --tag='HGG_hand_block' --env=HandManipulateBlock-v0
-python train.py --tag='HGG_hand_egg' --env=HandManipulateEgg-v0
-```
+To train with Vanilla HGG and HER, change the function-names according to the instructions in the comments of 
+each [env_name].py

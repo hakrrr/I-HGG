@@ -71,7 +71,7 @@ if __name__ == "__main__":
     # Load all data.
     data = {}
     paths = [os.path.abspath(os.path.join(path, '..')) for path in glob2.glob(os.path.join(args.dir, '**', 'progress.csv'))]
-    location = 2
+    location = 4
     for curr_path in paths:
         if not os.path.isdir(curr_path):
             continue
@@ -181,6 +181,7 @@ if __name__ == "__main__":
     else:
         configs = sorted(data.keys())
 
+    configs = ['HER', 'HGG', 'I-HGG']
     for config in configs:
         print("Config: {}".format(config))
         # merge curves from runs of one config

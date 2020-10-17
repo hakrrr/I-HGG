@@ -64,7 +64,7 @@ class MatchSampler:
 			self.create_graph_distance()
 
 		# estimating diameter
-		# 1.6 Normal Hand Block # ? Image-based Hand Block
+		# 1.6 Normal Hand Block # 3.7259765 Image-based Hand Block
 		# 1.843 Normal Hand Egg # 5.692177 Image-based Hand Egg
 		# 0.119 Normal Hand Reach # 8.03 Image-based Hand Reach
 		# 1.7953 / 1.56 Normal Hand Pen # ? Image-based Hand Pen
@@ -221,7 +221,7 @@ class HGGLearner:
 
 		if self.count == 1280 * 9:
 			np.random.shuffle(self.train_data)
-			np.save('data/Hand_Env/vae_train_data_pen', self.train_data)
+			np.save('data/Hand_Env/vae_train_data_block', self.train_data)
 			print('Finished!')
 			self.count += 1
 			sys.exit()

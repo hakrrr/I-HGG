@@ -60,10 +60,10 @@ def goal_distance(goal_a, goal_b):
 # edit envs/hand/interval
 # edit here: _get_achieved_goal
 # edit here: sample_goal
-# edit here: dist_threshold (optional)
+# edit here: dist_threshold (optional 0.025 for I-HGG)
 class HandReachEnv(hand_env.HandEnv, utils.EzPickle):
     def __init__(
-        self, distance_threshold=0.02, n_substeps=20, relative_control=False,
+        self, distance_threshold=0.01, n_substeps=20, relative_control=False,
         initial_qpos=DEFAULT_INITIAL_QPOS, reward_type='sparse',
     ):
         utils.EzPickle.__init__(**locals())

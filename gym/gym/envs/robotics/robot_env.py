@@ -20,6 +20,8 @@ from torchvision.utils import save_image
 # from vae.import_vae import vae_pen
 # from vae.import_vae import vae_hand_reach
 
+from vae.import_vae import vae_hand_reach
+
 try:
     import mujoco_py
 except ImportError as e:
@@ -94,8 +96,8 @@ class RobotEnv(gym.GoalEnv):
         }
         reward = self.compute_reward(obs['achieved_goal'], self.goal, info)
         # Debug: Check if VAE encodes correctly
-        # ach1 = torch.from_numpy(obs['achieved_goal']).float().to('cuda')
-        # save_image(vae_fetch_slide.decode(ach1).view(-1, 3, 84, 84), 'ach_latent.png')
+        #ach1 = torch.from_numpy(obs['achieved_goal']).float().to('cuda')
+        #save_image(vae_hand_reach.decode(ach1).view(-1, 3, 84, 84), 'ach_latent.png')
         return obs, reward, done, info
 
     def reset(self):

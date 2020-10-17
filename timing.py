@@ -55,7 +55,7 @@ def pad(xs, value=np.nan):
 
 
 if __name__ == "__main__":
-    # call plot.py to plot success stored in progress.csv files
+    # call plot.py to plot success stored in progress0.csv files
 
     # get arguments
     parser = argparse.ArgumentParser()
@@ -70,7 +70,7 @@ if __name__ == "__main__":
 
     # Load all data.
     data = {}
-    paths = [os.path.abspath(os.path.join(path, '..')) for path in glob2.glob(os.path.join(args.dir, '**', 'progress.csv'))]
+    paths = [os.path.abspath(os.path.join(path, '..')) for path in glob2.glob(os.path.join(args.dir, '**', 'progress0.csv'))]
     location = 1
     for curr_path in paths:
         if not os.path.isdir(curr_path):
@@ -98,7 +98,7 @@ if __name__ == "__main__":
         run = config
         print('Config / run: {} / {}'.format(config, run))
 
-        results = load_results(os.path.join(curr_path, 'progress.csv'))
+        results = load_results(os.path.join(curr_path, 'progress0.csv'))
         if not results:
             print('skipping {}'.format(curr_path))
             continue

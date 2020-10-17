@@ -159,5 +159,5 @@ def load_Vae(path, no_cuda=False, seed=1):
 if __name__ == '__main__':
     # Train VAE
     print('Train VAE...')
-    train_Vae(batch_size=128, epochs=200, load=False)
+    train_Vae(batch_size=128, epochs=1, load=True)
     print('Successfully trained VAE')

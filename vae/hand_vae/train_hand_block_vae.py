@@ -9,7 +9,7 @@ from torchvision.utils import save_image
 
 
 img_size = 84
-n_path = '../data/Hand_Env/vae_model_block'
+n_path = '../data/Hand_Env/vae_model_block_0'
 
 
 class VAE(nn.Module):
@@ -17,9 +17,9 @@ class VAE(nn.Module):
         super(VAE, self).__init__()
         self.fc1 = nn.Linear(img_size * img_size * 3, 400)
         # Try to reduce
-        self.fc21 = nn.Linear(400, 8)
-        self.fc22 = nn.Linear(400, 8)
-        self.fc3 = nn.Linear(8, 400)
+        self.fc21 = nn.Linear(400, 10)
+        self.fc22 = nn.Linear(400, 10)
+        self.fc3 = nn.Linear(10, 400)
         self.fc4 = nn.Linear(400, img_size * img_size * 3)
 
     def encode(self, x):
@@ -30,11 +30,11 @@ class VAE(nn.Module):
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
         #return (mu + eps * std) * 0.36
-        return mu * 0.3237
+        return mu * 0.4294
 
     # maybe z * 11
     def decode(self, z):
-        h3 = F.relu(self.fc3(z / 0.3237))
+        h3 = F.relu(self.fc3(z / 0.4294))
         return torch.sigmoid(self.fc4(h3))
 
     def forward(self, x):

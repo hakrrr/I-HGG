@@ -2,6 +2,7 @@ import gym
 import numpy as np
 from .fixobj import FixedObjectGoalEnv
 
+
 class IntervalGoalEnv(FixedObjectGoalEnv):
 	def __init__(self, args):
 		FixedObjectGoalEnv.__init__(self, args)

@@ -48,7 +48,7 @@ class FetchPickAndPlaceEnv(fetch_env.FetchEnv, utils.EzPickle):
 
     def _sample_goal(self):
         # Sample randomly from goalset
-        index = np.random.randint(100)
+        index = np.random.randint(20)
         goal_0 = goal_set_fetch_pick_0[index]
         #goal_1 = goal_set_fetch_pick_1[index]
         goal_0 = vae_fetch_pick_0.format(goal_0)

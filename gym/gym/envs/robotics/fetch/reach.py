@@ -35,9 +35,9 @@ class FetchReachEnv(fetch_env.FetchEnv, utils.EzPickle):
         utils.EzPickle.__init__(self)
 
     def _sample_goal(self):
-        goal = goal_set_fetch_reach[np.random.randint(15)]
+        goal = goal_set_fetch_reach[np.random.randint(10)+2]
         goal = vae_fetch_reach.format(goal)
-        # save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
+        save_image(goal.cpu().view(-1, 3, self.img_size, self.img_size), 'videos/goal/goal.png')
         x, y = vae_fetch_reach.encode(goal)
         goal = vae_fetch_reach.reparameterize(x, y)
         goal = goal.detach().cpu().numpy()

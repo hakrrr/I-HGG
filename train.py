@@ -51,7 +51,7 @@ if __name__=='__main__':
 			args.logger.add_record('Timesteps', buffer.steps_counter)
 			args.logger.add_record('TimeCost(sec)', time.time()-start_time)
 
-			# Save learning progress to progress.csv file
+			# Save learning progress to progress0.csv file
 			args.logger.save_csv()
 
 			args.logger.tabular_show(args.tag)
